@@ -16,7 +16,7 @@
         "immediately":  null,
         "persistent":  "Any player suffers 1 damage. Gravehold suffers 1 damage.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_1/Drillbeak_Wurm.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Drillbeak_Wurm.jpg"
     },
     {
         "id":  "NA-1c-26",
@@ -35,7 +35,7 @@
         "immediately":  "This minion suffers damage equal to the number of players in the game.",
         "persistent":  "Unleash.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_1/Carriode_Colony.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Carriode_Colony.jpg"
     },
     {
         "id":  "NA-1c-27",
@@ -54,7 +54,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash. Gravehold suffers 4 damage.",
-        "image":  "Data/_Nemesis_Basic/Tier_1/Chaos_Orb.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Chaos_Orb.jpg"
     },
     {
         "id":  "NA-1c-05",
@@ -92,7 +92,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_1/Disorient.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Disorient.jpg"
     },
     {
         "id":  "NA-1c-07",
@@ -130,7 +130,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_1/Rend.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Rend.jpg"
     },
     {
         "id":  "NA-1c-30",
@@ -149,7 +149,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash. Any player discards two gems in hand.",
-        "image":  "Data/_Nemesis_Basic/Tier_1/Unnerving_Howl.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Unnerving_Howl.jpg"
     },
     {
         "id":  "NA-1c-31",
@@ -168,7 +168,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash. Any player suffers 3 damage. Any player discards a card in hand.",
-        "image":  "Data/_Nemesis_Basic/Tier_1/Ceaseless_Darkness.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Ceaseless_Darkness.jpg"
     },
     {
         "id":  "NA-1c-11",
@@ -206,7 +206,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_1/Aether_Shock.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Aether_Shock.jpg"
     },
     {
         "id":  "NA-1c-13",
@@ -225,7 +225,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_2/Decay.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Decay.jpg"
     },
     {
         "id":  "NA-1c-14",
@@ -263,7 +263,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash. The player with the lowest life suffers 4 damage.",
-        "image":  "Data/_Nemesis_Basic/Tier_2/Culling_Scythe.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Culling_Scythe.jpg"
     },
     {
         "id":  "NA-1c-16",
@@ -301,7 +301,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_2/Fugue.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Fugue.jpg"
     },
     {
         "id":  "NA-1c-18",
@@ -320,7 +320,7 @@
         "immediately":  null,
         "persistent":  "Gravehold suffers 3 damage. OR Any player loses 2 charges.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_2/Volcanic_Zala.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Volcanic_Zala.jpg"
     },
     {
         "id":  "NA-1c-19",
@@ -358,7 +358,7 @@
         "immediately":  null,
         "persistent":  "Unleash. Any player suffers 1 damage.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_2/Portal_Guardian.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Portal_Guardian.jpg"
     },
     {
         "id":  "NA-1c-21",
@@ -377,7 +377,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice. Gravehold suffers 3 damage.",
-        "image":  "Data/_Nemesis_Basic/Tier_2/Obliterating_Meteor.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Obliterating_Meteor.jpg"
     },
     {
         "id":  "NA-1c-22",
@@ -453,7 +453,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_2/Dement.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Dement.jpg"
     },
     {
         "id":  "NA-1c-02",
@@ -472,7 +472,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_3/Eliminate.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Eliminate.jpg"
     },
     {
         "id":  "NA-1c-03",
@@ -491,7 +491,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash three times. Banish this.",
-        "image":  "Data/_Nemesis_Basic/Tier_3/Crushing_Storm.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Crushing_Storm.jpg"
     },
     {
         "id":  "NA-1c-04",
@@ -510,7 +510,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash. The player with the most expensive prepped spell destroys it. If that spell costs 4 Æ or less, Unleash and any player suffers 3 damage.",
-        "image":  "Data/_Nemesis_Basic/Tier_3/Gnashing_Maw.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Gnashing_Maw.jpg"
     },
     {
         "id":  "NA-2a-19",
@@ -548,7 +548,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Reveal the top card of the turn order deck. If it\u0027s a player turn order card, Unleash three times. Otherwise, any player suffers 5 damage.",
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_1/Hissing_Acid.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_1/Hissing_Acid.jpg"
     },
     {
         "id":  "NA-4-02",
@@ -567,7 +567,7 @@
         "immediately":  null,
         "persistent":  "Unleash. Any player suffers 1 damage.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_1/Bane_Commander.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_1/Bane_Commander.jpg"
     },
     {
         "id":  "NA-2a-20",
@@ -643,7 +643,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_2/Marked.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_2/Marked.jpg"
     },
     {
         "id":  "NA-2a-23",
@@ -833,7 +833,7 @@
         "immediately":  null,
         "persistent":  "Unleash. Gravehold suffers 2 damage.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_2/Needle_Doom.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_2/Needle_Doom.jpg"
     },
     {
         "id":  "NA-2a-13",
@@ -1099,7 +1099,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice. The player with the most expensive prepped spell destroys it. If that spell costs 4 Æ or less, or no spell was destroyed, Unleash.",
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_3/Flash_of_Decay.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_3/Flash_of_Decay.jpg"
     },
     {
         "id":  "NA-3a-05",
@@ -1118,7 +1118,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_3/Terrify.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_3/Terrify.jpg"
     },
     {
         "id":  "NA-4-04",
@@ -1137,7 +1137,7 @@
         "immediately":  null,
         "persistent":  "Unleash twice.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_3/Burialskulk.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_3/Burialskulk.jpg"
     },
     {
         "id":  "NA-4-05",
@@ -1156,7 +1156,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash. If there are two nemesis turn order cards in the turn order pile, any player suffers 8 damage. Otherwise, any player suffers 5 damage.",
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_3/Thunderous_Tempest.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_3/Thunderous_Tempest.jpg"
     },
     {
         "id":  "NA-4-06",
@@ -1365,7 +1365,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_3/Disperse.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Disperse.jpg"
     },
     {
         "id":  "NA-1c-08",
@@ -1384,7 +1384,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_3/Gore.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Gore.jpg"
     },
     {
         "id":  "NA-1c-09",
@@ -1403,7 +1403,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice. Gravehold suffers 4 damage. Any player destroys the top four cards of their deck.",
-        "image":  "Data/_Nemesis_Basic/Tier_3/Hex_of_Destruction.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Hex_of_Destruction.jpg"
     },
     {
         "id":  "NA-1c-10",
@@ -1422,7 +1422,7 @@
         "immediately":  null,
         "persistent":  "Any player suffers 3 damage. If this minion has 6 or less life, it gains 3 life.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_3/Eternal_Watcher.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Eternal_Watcher.jpg"
     },
     {
         "id":  "NA-2a-16",
@@ -1479,7 +1479,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_1/Decimate.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Decimate.jpg"
     },
     {
         "id":  "NA-END-136",
@@ -1498,7 +1498,7 @@
         "immediately":  null,
         "persistent":  "Any player suffers 1 damage. If the nemesis tier is 2 or higher, that player suffers 2 additional damage.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_1/Blind_Enigma.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Blind_Enigma.jpg"
     },
     {
         "id":  "NA-END-137",
@@ -1517,7 +1517,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice.",
-        "image":  "Data/_Nemesis_Basic/Tier_1/Planar_Collision.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Planar_Collision.jpg"
     },
     {
         "id":  "NA-END-138",
@@ -1536,7 +1536,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash. Any player discards a spell in hand and suffers 2 damage.",
-        "image":  "Data/_Nemesis_Basic/Tier_1/Spirit_Snare.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_1/Spirit_Snare.jpg"
     },
     {
         "id":  "NA-END-139",
@@ -1555,7 +1555,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_2/Mutilate.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Mutilate.jpg"
     },
     {
         "id":  "NA-END-140",
@@ -1574,7 +1574,7 @@
         "immediately":  null,
         "persistent":  "Gravehold suffers 2 damage.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_2/Needlemaw.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Needlemaw.jpg"
     },
     {
         "id":  "NA-END-141",
@@ -1593,7 +1593,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice. The players collectively discard three cards in hand.",
-        "image":  "Data/_Nemesis_Basic/Tier_2/Morbid_Gyre.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Morbid_Gyre.jpg"
     },
     {
         "id":  "NA-END-142",
@@ -1612,7 +1612,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice. The player with the fewest opened breaches suffers 3 damage.",
-        "image":  "Data/_Nemesis_Basic/Tier_2/Gravity_Splinter.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_2/Gravity_Splinter.jpg"
     },
     {
         "id":  "NA-END-143",
@@ -1631,7 +1631,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_3/Sunder.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Sunder.jpg"
     },
     {
         "id":  "NA-END-144",
@@ -1650,7 +1650,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_3/Topple.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Topple.jpg"
     },
     {
         "id":  "NA-END-145",
@@ -1669,7 +1669,7 @@
         "immediately":  null,
         "persistent":  "Gravehold suffers damage equal to this minion\u0027s current life.",
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Basic/Tier_3/Monstrosity_of_Omens.jpg"
+        "image":  "Data/Nemesis_Basic/Tier_3/Monstrosity_of_Omens.jpg"
     },
     {
         "id":  "NA-2a-18",
@@ -1707,7 +1707,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_1/Wreck.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_1/Wreck.jpg"
     },
     {
         "id":  "NA-2a-03",
@@ -1726,7 +1726,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_2/Separate.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_2/Separate.jpg"
     },
     {
         "id":  "NA-2a-04",
@@ -1745,7 +1745,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice. Gravehold suffers 4 damage.",
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_2/Sky_Tremor.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_2/Sky_Tremor.jpg"
     },
     {
         "id":  "NA-2a-05",
@@ -1764,7 +1764,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice. Any player suffers 4 damage.",
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_2/Engulfing_Madness.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_2/Engulfing_Madness.jpg"
     },
     {
         "id":  "NA-2a-06",
@@ -1783,7 +1783,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_3/Sacrifice.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_3/Sacrifice.jpg"
     },
     {
         "id":  "NA-2a-07",
@@ -1802,7 +1802,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  null,
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_3/Eradicate.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_3/Eradicate.jpg"
     },
     {
         "id":  "NA-2a-08",
@@ -1821,7 +1821,7 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "Unleash twice. The players collectively destroy the two most expensive prepped spells.",
-        "image":  "Data/_Nemesis_Upgraded_Basic/Tier_3/Ray_of_Desolation.jpg"
+        "image":  "Data/Nemesis_Upgraded_Basic/Tier_3/Ray_of_Desolation.jpg"
     },
     {
         "id":  "NA-END-146",
@@ -1840,6 +1840,6 @@
         "immediately":  null,
         "persistent":  null,
         "powerEffect":  "The player with the most charges suffers 4 damage and loses all of their charges.",
-        "image":  "Data/_Nemesis_Basic/Tier_3/Doom_Aegis.png"
+        "image":  "Data/Nemesis_Basic/Tier_3/Doom_Aegis.png"
     }
 ]
