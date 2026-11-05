@@ -74,8 +74,9 @@ function layout() {
 
   canvas.style.padding = margin + 'px';
   canvas.style.gap = gap + 'px';
-  // Con carte che escono dallo schermo si parte da sinistra, altrimenti si centra
-  canvas.style.justifyContent = n > MAX_VISIBLE ? 'flex-start' : 'center';
+  // Se le carte escono dallo schermo si parte da sinistra, altrimenti si centrano
+  const totalWidth = n * cardWidth + (n - 1) * gap + 2 * margin;
+  canvas.style.justifyContent = totalWidth > W + 0.5 ? 'flex-start' : 'center';
 
   cards.forEach(card => {
     card.style.width = cardWidth + 'px';
