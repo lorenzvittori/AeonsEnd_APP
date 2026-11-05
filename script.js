@@ -223,8 +223,9 @@ function showBig() {
     resolveBtn.textContent = 'Risolta';
   }
 
-  // Si può agire solo sulla carta da risolvere, non su una che si sta solo guardando
-  resolveBtn.disabled = viewIndex !== currentIndex;
+  // Risolta / Risolta e Pesca valgono solo per la carta da risolvere, non per una che si sta solo guardando.
+  // Ok (dopo la pesca) è sempre attivo, qualunque carta si stia guardando.
+  resolveBtn.disabled = newIndex < 0 && viewIndex !== currentIndex;
   updateResolveMarker();
 }
 
