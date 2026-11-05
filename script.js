@@ -20,6 +20,9 @@ const LABEL_SPACE = 30;
 // Distanza minima (px) di uno slide per cambiare carta in VistaRisoluzione
 const SWIPE_MIN_DISTANCE = 50;
 
+// Spazio (px) tra gli elementi della VistaCartaCoda (carta, scritta, pulsanti): lo stesso di #zoom in style.css
+const ZOOM_GAP = 12;
+
 // Carte da cui si pesca, lette all'avvio da cards.json (generato da cards.csv con tools/build-cards.ps1)
 let cardPool = [];
 
@@ -183,8 +186,11 @@ function layoutZoom() {
   const big = zoom.firstElementChild;
   if (!big) return;
 
+  // Sotto la carta ci sono la scritta con token/vita e i pulsanti: si toglie il loro spazio
+  const below = Array.from(zoom.children).slice(1);
+  const extra = below.reduce((sum, el) => sum + el.offsetHeight, 0) + below.length * ZOOM_GAP;
   const W = zoom.clientWidth;
-  const H = zoom.clientHeight;
+  const H = zoom.clientHeight - extra;
   const margin = Math.min(W, H) * 0.05;
   const width = Math.max(0, Math.min(W - 2 * margin, (H - 2 * margin) / CARD_RATIO));
   big.style.width = width + 'px';
@@ -192,11 +198,46 @@ function layoutZoom() {
   big.style.borderRadius = (width * 0.05) + 'px';
 }
 
+// Carta della coda mostrata in VistaCartaCoda
+let zoomedCard = null;
+
 function openZoom(card) {
+  zoomedCard = card;
+  const { data } = card.state;
+
   const big = document.createElement('div');
   big.className = 'card';
   big.style.backgroundImage = card.style.backgroundImage;
-  zoom.replaceChildren(big);
+
+  const info = document.createElement('div');
+  info.className = 'zoom-info';
+  info.textContent = cardInfo(card);
+
+  // Azioni in VistaCoda: danno o cura ai minion e uscita dalla coda; i poteri si tolgono quando si paga il costo
+  const actions = document.createElement('div');
+  actions.className = 'zoom-actions';
+  const addAction = (text, handler, extraClass) => {
+    const button = document.createElement('button');
+    button.textContent = text;
+    if (extraClass) button.className = extraClass;
+    button.addEventListener('click', handler);
+    actions.appendChild(button);
+  };
+  if (data.type === 'Minion') {
+    if (card.state.hp !== null) {
+      addAction('−5', () => changeHp(-5));
+      addAction('−1', () => changeHp(-1));
+      addAction('+1', () => changeHp(1));
+    }
+    addAction('Uccidi', removeZoomedCard, 'danger');
+  } else if (data.type === 'Power') {
+    addAction('Rimuovi', removeZoomedCard, 'danger');
+  }
+  // Toccare un pulsante non chiude la VistaCartaCoda
+  actions.addEventListener('click', e => e.stopPropagation());
+
+  zoom.replaceChildren(big, info);
+  if (actions.children.length > 0) zoom.appendChild(actions);
   zoom.hidden = false;
   layoutZoom();
 }
@@ -204,6 +245,28 @@ function openZoom(card) {
 function closeZoom() {
   zoom.hidden = true;
   zoom.replaceChildren();
+  zoomedCard = null;
+}
+
+// Cambia la vita del minion mostrato; a 0 o meno esce dalla coda
+function changeHp(delta) {
+  const card = zoomedCard;
+  card.state.hp = Math.max(0, card.state.hp + delta);
+  if (card.state.hp <= 0) {
+    removeZoomedCard();
+    return;
+  }
+  updateBadge(card);
+  zoom.querySelector('.zoom-info').textContent = cardInfo(card);
+}
+
+// Toglie dalla coda la carta mostrata e torna alla VistaCoda
+function removeZoomedCard() {
+  const card = zoomedCard;
+  closeZoom();
+  card.remove();
+  layout();
+  centerQueue();
 }
 
 function addCard() {

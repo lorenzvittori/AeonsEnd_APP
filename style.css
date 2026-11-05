@@ -154,14 +154,44 @@ body {
   position: fixed;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   background: rgba(0, 0, 0, 0.85);
   z-index: 20;
 }
 
 #zoom[hidden] {
   display: none;
+}
+
+/* Sotto la carta ingrandita: token o vita, poi le azioni */
+.zoom-info {
+  min-height: 1.4em;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.zoom-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.zoom-actions button {
+  padding: 10px 16px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+}
+
+.zoom-actions button.danger {
+  background: #b3261e;
+  color: #fff;
 }
 
 /* Carta ingrandita al centro della coda */
