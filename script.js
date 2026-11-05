@@ -27,7 +27,10 @@ let cardImages = [];
 
 // Stato della VistaRisoluzione (false = VistaCoda)
 let resolving = false;
+// Carta da risolvere (bordo bianco): cambia solo con "Risolta"
 let currentIndex = 0;
+// Carta mostrata ingrandita: cambia anche con lo slide, senza risolvere nulla
+let viewIndex = 0;
 
 async function loadImageList() {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FOLDER}`;
@@ -137,17 +140,22 @@ function reset() {
   addCard();
 }
 
-// VistaRisoluzione: mostra ingrandita la carta corrente della coda
-function showCurrent() {
+// VistaRisoluzione: segna nella coda la carta da risolvere (bordo bianco) e la porta in vista
+function markCurrent() {
   const cards = canvas.querySelectorAll('.card');
   cards.forEach((card, i) => card.classList.toggle('current', i === currentIndex));
+  cards[currentIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
 
+// VistaRisoluzione: mostra ingrandita la carta viewIndex
+function showBig() {
+  const cards = canvas.querySelectorAll('.card');
   const big = document.createElement('div');
   big.className = 'card';
-  big.style.backgroundImage = cards[currentIndex].style.backgroundImage;
+  big.style.backgroundImage = cards[viewIndex].style.backgroundImage;
 
   // L'ultima carta della coda è quella appena aggiunta
-  if (currentIndex === cards.length - 1) {
+  if (viewIndex === cards.length - 1) {
     const label = document.createElement('span');
     label.className = 'new-label';
     label.textContent = 'NUOVA';
@@ -156,8 +164,13 @@ function showCurrent() {
 
   overlay.replaceChildren(big);
   layoutOverlay();
+}
 
-  cards[currentIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+// Passa alla carta da risolvere e la mostra ingrandita
+function showCurrent() {
+  viewIndex = currentIndex;
+  markCurrent();
+  showBig();
 }
 
 function startResolution() {
@@ -201,15 +214,15 @@ function resolveCurrent() {
   }
 }
 
-// Torna alla carta precedente della coda (non va prima della prima)
-function previousCard() {
-  if (currentIndex > 0) {
-    currentIndex--;
-    showCurrent();
-  }
+// Sposta solo la carta mostrata, restando dentro la coda; la carta da risolvere non cambia
+function moveView(step) {
+  const next = viewIndex + step;
+  if (next < 0 || next >= canvas.querySelectorAll('.card').length) return;
+  viewIndex = next;
+  showBig();
 }
 
-// Slide in VistaRisoluzione: verso sinistra = carta successiva (come Risolta), verso destra = precedente
+// Slide in VistaRisoluzione: verso sinistra = carta successiva, verso destra = precedente
 let swipeStartX = null;
 let swipeStartY = null;
 
@@ -224,11 +237,7 @@ overlay.addEventListener('pointerup', e => {
   const dy = e.clientY - swipeStartY;
   swipeStartX = null;
   if (Math.abs(dx) < SWIPE_MIN_DISTANCE || Math.abs(dx) < Math.abs(dy)) return;
-  if (dx < 0) {
-    resolveCurrent();
-  } else {
-    previousCard();
-  }
+  moveView(dx < 0 ? 1 : -1);
 });
 
 overlay.addEventListener('pointercancel', () => {
