@@ -31,6 +31,11 @@ const LABEL_SPACE = 30;
 // Distanza minima (px) di uno slide per cambiare carta in VistaRisoluzione
 const SWIPE_MIN_DISTANCE = 50;
 
+// Spazio sopra ogni carta della coda per i pallini dei token: PIPS_SPACE_RATIO x larghezza carta + PIPS_SPACE_EXTRA px
+// (devono corrispondere a .pips / .pip in style.css)
+const PIPS_SPACE_RATIO = 0.2;
+const PIPS_SPACE_EXTRA = 6;
+
 // Spazio (px) tra gli elementi della VistaCartaCoda (carta, scritta, pulsanti): lo stesso di #zoom in style.css
 const ZOOM_GAP = 12;
 
@@ -152,14 +157,16 @@ function layout() {
   const availW = W - 2 * margin - (fit - 1) * gap;
   const widthFromWidth = availW / fit;
 
-  // Larghezza massima se limitati dallo spazio verticale
+  // Larghezza massima se limitati dallo spazio verticale: sopra la carta si lascia lo spazio per i pallini dei token
+  // (altezza carta + PIPS_SPACE_RATIO * larghezza + PIPS_SPACE_EXTRA deve stare in availH)
   const availH = H - 2 * margin;
-  const widthFromHeight = availH / CARD_RATIO;
+  const widthFromHeight = Math.max(0, availH - PIPS_SPACE_EXTRA) / (CARD_RATIO + PIPS_SPACE_RATIO);
 
   const cardWidth = Math.max(0, Math.min(widthFromWidth, widthFromHeight));
   const cardHeight = cardWidth * CARD_RATIO;
+  const pipsSpace = cardWidth * PIPS_SPACE_RATIO + PIPS_SPACE_EXTRA;
 
-  canvas.style.padding = margin + 'px';
+  canvas.style.padding = (margin + pipsSpace) + 'px ' + margin + 'px ' + margin + 'px';
   canvas.style.gap = gap + 'px';
   // Se le carte escono dallo schermo si parte da sinistra, altrimenti si centrano
   const totalWidth = n * cardWidth + (n - 1) * gap + 2 * margin;
@@ -179,18 +186,36 @@ function layout() {
 // Badge sulla carta in coda: token rimasti (potere) o vita (minion)
 function updateBadge(card) {
   const { data, tokens, hp } = card.state;
-  const value = data.type === 'Power' ? tokens : data.type === 'Minion' ? hp : null;
+
+  // Potere: un pallino giallo sopra la carta per ogni token rimasto
+  let pips = card.querySelector('.pips');
+  if (data.type === 'Power' && tokens > 0) {
+    if (!pips) {
+      pips = document.createElement('span');
+      pips.className = 'pips';
+      card.appendChild(pips);
+    }
+    pips.replaceChildren(...Array.from({ length: tokens }, () => {
+      const pip = document.createElement('span');
+      pip.className = 'pip';
+      return pip;
+    }));
+  } else if (pips) {
+    pips.remove();
+  }
+
+  // Minion: numero della vita (rosso)
   let badge = card.querySelector('.badge');
-  if (value === null || value === undefined) {
-    if (badge) badge.remove();
-    return;
+  if (data.type === 'Minion' && hp !== null && hp !== undefined) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'badge hp';
+      card.appendChild(badge);
+    }
+    badge.textContent = hp;
+  } else if (badge) {
+    badge.remove();
   }
-  if (!badge) {
-    badge = document.createElement('span');
-    badge.className = 'badge ' + (data.type === 'Power' ? 'tokens' : 'hp');
-    card.appendChild(badge);
-  }
-  badge.textContent = value;
 }
 
 // Informazione sulla carta: token rimasti o vita

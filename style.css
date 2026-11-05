@@ -38,7 +38,27 @@ body {
   flex-shrink: 0;
 }
 
-/* Badge sulla carta in coda: token rimasti (potere, blu) o vita (minion, rosso) */
+/* Token del potere: un pallino giallo (bordo giallo scuro) per token, nello spazio sopra la carta */
+.pips {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 6px);
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--cw, 60px) * 0.05);
+  pointer-events: none;
+}
+
+.pip {
+  width: calc(var(--cw, 60px) * 0.16);
+  height: calc(var(--cw, 60px) * 0.16);
+  border: max(1.5px, calc(var(--cw, 60px) * 0.025)) solid #a16207;
+  border-radius: 50%;
+  background: #facc15;
+}
+
+/* Badge sulla carta in coda: vita dei minion (rosso) */
 .badge {
   position: absolute;
   top: 3%;
@@ -56,10 +76,6 @@ body {
   font-weight: 700;
   line-height: 1;
   pointer-events: none;
-}
-
-.badge.tokens {
-  background: #1d4ed8;
 }
 
 .badge.hp {
