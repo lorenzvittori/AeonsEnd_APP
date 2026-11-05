@@ -26,7 +26,10 @@ body {
 }
 
 .card {
-  background: #fff;
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   flex-shrink: 0;
 }
 
