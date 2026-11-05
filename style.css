@@ -40,32 +40,37 @@ body {
 
 /* Sopra la carta in coda: un'immagine di token (Assets/power-token.webp) per ogni token del potere, oppure una goccia
    per ogni punto di vita del minion (rossa Assets/life-drop.webp, grigia Assets/life-drop-lost.webp se persa).
-   Al massimo 5 per fila (script.js: PIPS_PER_ROW); le file in più si impilano verso l'alto. */
+   Stanno sempre su una sola riga alta al massimo 0.13 x larghezza carta (script.js: PIPS_ROW_RATIO): se sono tanti
+   si rimpiccioliscono per entrare nella larghezza della carta. */
 .pips {
   position: absolute;
   left: 0;
   right: 0;
   bottom: calc(100% + 6px);
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: calc(var(--cw, 60px) * 0.02);
+  gap: calc(var(--cw, 60px) * 0.01);
   pointer-events: none;
 }
 
 .pip, .drop {
-  width: calc(var(--cw, 60px) * 0.18);
-  height: calc(var(--cw, 60px) * 0.235);
+  flex: 0 1 auto;
+  min-width: 0;
+  height: calc(var(--cw, 60px) * 0.13);
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
 }
 
+/* Token quadrato; goccia larga 0.766 volte la sua altezza (rapporto dell'immagine) */
 .pip {
+  width: calc(var(--cw, 60px) * 0.13);
   background-image: url("Assets/power-token.webp");
 }
 
 .drop {
+  width: calc(var(--cw, 60px) * 0.1);
   background-image: url("Assets/life-drop.webp");
 }
 

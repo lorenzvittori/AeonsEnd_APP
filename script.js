@@ -31,10 +31,9 @@ const LABEL_SPACE = 30;
 // Distanza minima (px) di uno slide per cambiare carta in VistaRisoluzione
 const SWIPE_MIN_DISTANCE = 50;
 
-// Spazio sopra ogni carta della coda per token (potere) e gocce di vita (minion): una fila alta PIPS_ROW_RATIO x larghezza
-// carta, PIPS_PER_ROW elementi per fila, più PIPS_SPACE_EXTRA px (devono corrispondere a .pips / .pip / .drop in style.css)
-const PIPS_ROW_RATIO = 0.26;
-const PIPS_PER_ROW = 5;
+// Spazio sopra ogni carta della coda per token (potere) e gocce di vita (minion): un'unica fila alta al massimo
+// PIPS_ROW_RATIO x larghezza carta, più PIPS_SPACE_EXTRA px (devono corrispondere a .pips / .pip / .drop in style.css)
+const PIPS_ROW_RATIO = 0.13;
 const PIPS_SPACE_EXTRA = 6;
 
 // Spazio (px) tra gli elementi della VistaCartaCoda (carta, scritta, pulsanti): lo stesso di #zoom in style.css
@@ -160,14 +159,12 @@ function layout() {
 
   // Larghezza massima se limitati dallo spazio verticale: sopra la carta si lascia lo spazio per i pallini dei token
   // (altezza carta + PIPS_SPACE_RATIO * larghezza + PIPS_SPACE_EXTRA deve stare in availH)
-  // Le file di token/gocce necessarie sono quelle della carta che ne ha di più
-  const rows = Math.max(1, ...Array.from(cards, card => Math.ceil(pipCount(card) / PIPS_PER_ROW)));
   const availH = H - 2 * margin;
-  const widthFromHeight = Math.max(0, availH - PIPS_SPACE_EXTRA) / (CARD_RATIO + rows * PIPS_ROW_RATIO);
+  const widthFromHeight = Math.max(0, availH - PIPS_SPACE_EXTRA) / (CARD_RATIO + PIPS_ROW_RATIO);
 
   const cardWidth = Math.max(0, Math.min(widthFromWidth, widthFromHeight));
   const cardHeight = cardWidth * CARD_RATIO;
-  const pipsSpace = rows * cardWidth * PIPS_ROW_RATIO + PIPS_SPACE_EXTRA;
+  const pipsSpace = cardWidth * PIPS_ROW_RATIO + PIPS_SPACE_EXTRA;
 
   canvas.style.padding = (margin + pipsSpace) + 'px ' + margin + 'px ' + margin + 'px';
   canvas.style.gap = gap + 'px';
@@ -404,7 +401,6 @@ function changeHp(delta) {
   // Se si cura oltre la vita iniziale compaiono altre gocce rosse
   card.state.maxHp = Math.max(card.state.maxHp, card.state.hp);
   updateBadge(card);
-  layout();
   zoom.querySelector('.zoom-info').textContent = cardInfo(card);
 }
 
