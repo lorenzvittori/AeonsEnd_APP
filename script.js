@@ -33,6 +33,8 @@ let resolving = false;
 let currentIndex = 0;
 // Carta mostrata ingrandita: cambia anche con lo slide, senza risolvere nulla
 let viewIndex = 0;
+// Indice della carta appena pescata alla fine della risoluzione (-1 = nessuna)
+let newIndex = -1;
 
 async function loadImageList() {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FOLDER}`;
@@ -201,8 +203,8 @@ function showBig() {
   big.className = 'card';
   big.style.backgroundImage = cards[viewIndex].style.backgroundImage;
 
-  // L'ultima carta della coda è quella appena aggiunta
-  if (viewIndex === cards.length - 1) {
+  // La carta appena pescata a fine risoluzione è segnata come NUOVA
+  if (viewIndex === newIndex) {
     const label = document.createElement('span');
     label.className = 'new-label';
     label.textContent = 'NUOVA';
@@ -212,7 +214,16 @@ function showBig() {
   overlay.replaceChildren(big);
   layoutOverlay();
 
-  // Si può risolvere solo la carta da risolvere, non una che si sta solo guardando
+  // Testo del pulsante: "Ok" sulla carta appena pescata, "Risolta e Pesca" sull'ultima carta della coda
+  if (newIndex >= 0) {
+    resolveBtn.textContent = 'Ok';
+  } else if (currentIndex === cards.length - 1) {
+    resolveBtn.textContent = 'Risolta e Pesca';
+  } else {
+    resolveBtn.textContent = 'Risolta';
+  }
+
+  // Si può agire solo sulla carta da risolvere, non su una che si sta solo guardando
   resolveBtn.disabled = viewIndex !== currentIndex;
   updateResolveMarker();
 }
@@ -227,6 +238,7 @@ function showCurrent() {
 function startResolution() {
   resolving = true;
   currentIndex = 0;
+  newIndex = -1;
   canvas.classList.add('resolving');
   overlay.hidden = false;
   nemesisBtn.hidden = true;
@@ -240,6 +252,7 @@ function startResolution() {
 // Ritorno alla VistaCoda
 function endResolution() {
   resolving = false;
+  newIndex = -1;
   canvas.classList.remove('resolving');
   canvas.querySelectorAll('.card.viewed').forEach(card => card.classList.remove('viewed'));
   overlay.replaceChildren();
@@ -252,17 +265,29 @@ function endResolution() {
 }
 
 function nemesisTurn() {
-  addCard();
   startResolution();
 }
 
+// "Risolta" / "Risolta e Pesca" / "Ok"
 function resolveCurrent() {
-  currentIndex++;
-  if (currentIndex < canvas.querySelectorAll('.card').length) {
-    showCurrent();
-  } else {
+  // Ok sulla carta appena pescata: ritorno alla VistaCoda
+  if (newIndex >= 0) {
     endResolution();
+    return;
   }
+
+  const total = canvas.querySelectorAll('.card').length;
+  if (currentIndex < total - 1) {
+    currentIndex++;
+    showCurrent();
+    return;
+  }
+
+  // Ultima carta della coda risolta: si pesca la nuova carta e la si mostra
+  addCard();
+  newIndex = total;
+  currentIndex = total;
+  showCurrent();
 }
 
 // Sposta solo la carta mostrata, restando dentro la coda; la carta da risolvere non cambia
