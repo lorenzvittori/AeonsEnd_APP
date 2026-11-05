@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Aeons End App</title>
-<link rel="stylesheet" href="style.css?v=15">
+<!-- Fondo nero e pagina nascosta finché style.css non è caricato (evita lampi bianchi) -->
+<style>
+  html { background: #000; }
+  html:not(.ready) body { visibility: hidden; }
+</style>
 </head>
 <body>
   <div id="canvas"><div id="resolve-marker" hidden></div></div>
@@ -14,6 +18,35 @@
     <button id="reset-btn">Reset</button>
     <button id="resolve-btn" hidden>Risolta</button>
   </div>
-  <script src="script.js?v=15"></script>
+
+  <!--
+    Questo file non va più modificato a ogni cambio di CSS/JS: la versione si aumenta in version.json.
+    version.json viene letto saltando la cache del browser, così CSS e JS nuovi si vedono subito
+    (dopo la pubblicazione di GitHub Pages) anche se questo index.html è ancora in cache.
+  -->
+  <script>
+    (function () {
+      function load(v) {
+        var q = v ? '?v=' + v : '';
+        var css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'style.css' + q;
+        function start() {
+          document.documentElement.classList.add('ready');
+          var js = document.createElement('script');
+          js.src = 'script.js' + q;
+          document.body.appendChild(js);
+        }
+        css.onload = start;
+        css.onerror = start;
+        document.head.appendChild(css);
+      }
+
+      fetch('version.json?t=' + Date.now(), { cache: 'no-store' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { load(d.v); })
+        .catch(function () { load(''); });
+    })();
+  </script>
 </body>
 </html>
