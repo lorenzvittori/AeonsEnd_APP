@@ -30,6 +30,7 @@ body {
 }
 
 .card {
+  position: relative;
   background-color: #fff;
   background-size: cover;
   background-position: center;
@@ -37,10 +38,57 @@ body {
   flex-shrink: 0;
 }
 
+/* Badge sulla carta in coda: token rimasti (potere, blu) o vita (minion, rosso) */
+.badge {
+  position: absolute;
+  top: 3%;
+  right: 3%;
+  min-width: calc(var(--cw, 60px) * 0.28);
+  height: calc(var(--cw, 60px) * 0.28);
+  padding: 0 calc(var(--cw, 60px) * 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: max(1px, calc(var(--cw, 60px) * 0.02)) solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  font-size: calc(var(--cw, 60px) * 0.18);
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.badge.tokens {
+  background: #1d4ed8;
+}
+
+.badge.hp {
+  background: #b3261e;
+}
+
+/* Scritta sopra il pulsante in VistaRisoluzione: "DA RISOLVERE" in rosso, poi token o vita */
+#status {
+  flex: 0 0 100%;
+  min-height: 1.4em;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+#status.todo {
+  color: #ff3b30;
+}
+
+#status[hidden] {
+  display: none;
+}
+
 .controls {
   flex-shrink: 0;
   margin-top: auto;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 12px;
   padding: 16px;

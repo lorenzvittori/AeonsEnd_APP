@@ -6,6 +6,7 @@ const resetBtn = document.getElementById('reset-btn');
 const resolveBtn = document.getElementById('resolve-btn');
 const controls = document.querySelector('.controls');
 const resolveMarker = document.getElementById('resolve-marker');
+const statusEl = document.getElementById('status');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
@@ -85,9 +86,55 @@ function layout() {
     card.style.width = cardWidth + 'px';
     card.style.height = cardHeight + 'px';
     card.style.borderRadius = (cardWidth * 0.05) + 'px';
+    // Larghezza della carta: il badge di token/vita si ridimensiona con lei
+    card.style.setProperty('--cw', cardWidth + 'px');
   });
 
   updateResolveMarker();
+}
+
+// Badge sulla carta in coda: token rimasti (potere) o vita (minion)
+function updateBadge(card) {
+  const { data, tokens, hp } = card.state;
+  const value = data.type === 'Power' ? tokens : data.type === 'Minion' ? hp : null;
+  let badge = card.querySelector('.badge');
+  if (value === null || value === undefined) {
+    if (badge) badge.remove();
+    return;
+  }
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.className = 'badge ' + (data.type === 'Power' ? 'tokens' : 'hp');
+    card.appendChild(badge);
+  }
+  badge.textContent = value;
+}
+
+// Informazione sulla carta: token rimasti o vita
+function cardInfo(card) {
+  const { data, tokens, hp } = card.state;
+  if (data.type === 'Power') return 'Token: ' + tokens;
+  if (data.type === 'Minion' && hp !== null) return 'Vita: ' + hp;
+  return '';
+}
+
+// La carta va risolta adesso? Minion e attacchi sempre, poteri solo all'ultimo token.
+// La carta appena pescata: solo gli attacchi (minion e poteri entrano in gioco e basta).
+function needsResolve(card, isNew) {
+  const { data, tokens } = card.state;
+  if (data.type === 'Attack') return true;
+  if (isNew) return false;
+  if (data.type === 'Minion') return true;
+  return data.type === 'Power' && tokens <= 1;
+}
+
+// Testo del pulsante per la carta da risolvere. Sull'ultima carta della coda si pesca la nuova.
+function actionText(card, isNew, isLast) {
+  const { data, tokens } = card.state;
+  if (isNew) return data.type === 'Attack' ? 'Risolto' : 'Ok';
+  if (data.type === 'Power' && tokens > 1) return isLast ? 'Togli 1 e Pesca' : 'Togli 1 e vai avanti';
+  if (data.type === 'Minion') return isLast ? 'Va avanti e Pesca' : 'Va avanti';
+  return isLast ? 'Risolto e Pesca' : 'Risolto';
 }
 
 // Lineetta sotto la carta da risolvere, nella fascia della coda (solo in VistaRisoluzione)
@@ -164,8 +211,11 @@ function addCard() {
   card.className = 'card';
   const data = randomCard();
   card.dataset.id = data.id;
+  // Stato della carta in gioco: token rimasti e vita attuale
+  card.state = { data, tokens: data.tokens, hp: data.hp };
   card.style.backgroundImage = `url("${encodeURI(data.image)}")`;
   canvas.appendChild(card);
+  updateBadge(card);
   layout();
   centerQueue();
 }
@@ -195,6 +245,23 @@ function showBig() {
   const cards = canvas.querySelectorAll('.card');
   // Nella coda la carta guardata ha il bordo bianco
   cards.forEach((card, i) => card.classList.toggle('viewed', i === viewIndex));
+
+  // Pulsante e scritta di stato: il pulsante agisce sulla carta da risolvere, la scritta descrive quella guardata
+  const isNew = newIndex >= 0;
+  const current = cards[currentIndex];
+  resolveBtn.textContent = actionText(current, isNew, currentIndex === cards.length - 1);
+  // Il pulsante vale solo per la carta da risolvere, non per una che si sta solo guardando.
+  // Dopo la pesca (Ok / Risolto sulla carta nuova) è sempre attivo, qualunque carta si stia guardando.
+  resolveBtn.disabled = !isNew && viewIndex !== currentIndex;
+
+  const parts = [];
+  if (viewIndex === currentIndex && needsResolve(current, isNew)) parts.push('DA RISOLVERE');
+  const info = cardInfo(cards[viewIndex]);
+  if (info) parts.push(info);
+  statusEl.textContent = parts.join(' · ') || ' ';
+  statusEl.classList.toggle('todo', parts[0] === 'DA RISOLVERE');
+  statusEl.hidden = false;
+
   const big = document.createElement('div');
   big.className = 'card';
   big.style.backgroundImage = cards[viewIndex].style.backgroundImage;
@@ -209,19 +276,6 @@ function showBig() {
 
   overlay.replaceChildren(big);
   layoutOverlay();
-
-  // Testo del pulsante: "Ok" sulla carta appena pescata, "Risolta e Pesca" sull'ultima carta della coda
-  if (newIndex >= 0) {
-    resolveBtn.textContent = 'Ok';
-  } else if (currentIndex === cards.length - 1) {
-    resolveBtn.textContent = 'Risolta e Pesca';
-  } else {
-    resolveBtn.textContent = 'Risolta';
-  }
-
-  // Risolta / Risolta e Pesca valgono solo per la carta da risolvere, non per una che si sta solo guardando.
-  // Ok (dopo la pesca) è sempre attivo, qualunque carta si stia guardando.
-  resolveBtn.disabled = newIndex < 0 && viewIndex !== currentIndex;
   updateResolveMarker();
 }
 
@@ -272,6 +326,7 @@ function endResolution() {
   nemesisBtn.hidden = false;
   resetBtn.hidden = false;
   resolveBtn.hidden = true;
+  statusEl.hidden = true;
   layout();
   centerQueue();
 }
@@ -280,23 +335,40 @@ function nemesisTurn() {
   startResolution();
 }
 
-// "Risolta" / "Risolta e Pesca" / "Ok"
+// Pulsante principale della VistaRisoluzione: agisce sulla carta da risolvere in base al suo tipo
 function resolveCurrent() {
-  // Ok sulla carta appena pescata: ritorno alla VistaCoda
+  const card = canvas.querySelectorAll('.card')[currentIndex];
+  const { data, tokens } = card.state;
+
+  // Carta appena pescata: un attacco si risolve subito ed esce dalla coda, le altre restano.
+  // Poi ritorno alla VistaCoda.
   if (newIndex >= 0) {
+    if (data.type === 'Attack') card.remove();
     endResolution();
     return;
   }
 
-  const total = canvas.querySelectorAll('.card').length;
-  if (currentIndex < total - 1) {
+  if (data.type === 'Power' && tokens > 1) {
+    // Potere: si toglie un token e si va avanti
+    card.state.tokens--;
+    updateBadge(card);
     currentIndex++;
-    showCurrent();
-    return;
+  } else if (data.type === 'Minion') {
+    // Minion: resta in coda, si va avanti
+    currentIndex++;
+  } else {
+    // Potere all'ultimo token o attacco: risolto, esce dalla coda (la carta dopo prende il suo posto)
+    card.remove();
   }
+  // Con una carta in meno le altre possono ingrandirsi
+  layout();
 
-  // Ultima carta della coda risolta: si pesca la nuova carta e la si mostra
-  drawNewCard();
+  // Finita la coda: si pesca la nuova carta e la si mostra
+  if (currentIndex >= canvas.querySelectorAll('.card').length) {
+    drawNewCard();
+  } else {
+    showCurrent();
+  }
 }
 
 // Sposta solo la carta mostrata, restando dentro la coda; la carta da risolvere non cambia
