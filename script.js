@@ -4,6 +4,7 @@ const nemesisBtn = document.getElementById('nemesis-btn');
 const resetBtn = document.getElementById('reset-btn');
 const resolveBtn = document.getElementById('resolve-btn');
 const controls = document.querySelector('.controls');
+const viewMarker = document.getElementById('view-marker');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
@@ -89,6 +90,21 @@ function layout() {
     card.style.height = cardHeight + 'px';
     card.style.borderRadius = (cardWidth * 0.05) + 'px';
   });
+
+  updateViewMarker();
+}
+
+// Lineetta sotto la carta mostrata ingrandita, nella fascia della coda (solo in VistaRisoluzione)
+function updateViewMarker() {
+  const card = canvas.querySelectorAll('.card')[viewIndex];
+  if (!resolving || !card) {
+    viewMarker.hidden = true;
+    return;
+  }
+  viewMarker.hidden = false;
+  viewMarker.style.left = (card.offsetLeft + card.offsetWidth * 0.2) + 'px';
+  viewMarker.style.width = (card.offsetWidth * 0.6) + 'px';
+  viewMarker.style.top = (card.offsetTop + card.offsetHeight + 4) + 'px';
 }
 
 // Posiziona l'overlay nello spazio sotto la coda e ingrandisce la carta al centro
@@ -135,7 +151,7 @@ function centerQueue() {
 }
 
 function reset() {
-  canvas.innerHTML = '';
+  canvas.querySelectorAll('.card').forEach(card => card.remove());
   canvas.scrollLeft = 0;
   addCard();
 }
@@ -164,6 +180,10 @@ function showBig() {
 
   overlay.replaceChildren(big);
   layoutOverlay();
+
+  // Si può risolvere solo la carta da risolvere, non una che si sta solo guardando
+  resolveBtn.disabled = viewIndex !== currentIndex;
+  updateViewMarker();
 }
 
 // Passa alla carta da risolvere e la mostra ingrandita
@@ -220,6 +240,8 @@ function moveView(step) {
   if (next < 0 || next >= canvas.querySelectorAll('.card').length) return;
   viewIndex = next;
   showBig();
+  // Tiene in vista nella coda la carta guardata
+  canvas.querySelectorAll('.card')[viewIndex].scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
 }
 
 // Slide in VistaRisoluzione: verso sinistra = carta successiva, verso destra = precedente

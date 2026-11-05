@@ -18,6 +18,7 @@ body {
 }
 
 #canvas {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
@@ -57,6 +58,19 @@ body {
 
 #canvas.resolving .card.current {
   opacity: 1;
+}
+
+/* Lineetta bianca sotto la carta mostrata ingrandita (si sposta con lo slide) */
+#view-marker {
+  position: absolute;
+  height: 3px;
+  border-radius: 2px;
+  background: #fff;
+  pointer-events: none;
+}
+
+#view-marker[hidden] {
+  display: none;
 }
 
 /* Scritta a destra della carta ingrandita (ultima carta della coda) */
@@ -119,6 +133,12 @@ body {
 
 #nemesis-btn:disabled, #reset-btn:disabled {
   opacity: 0.5;
+}
+
+/* Risolta non è cliccabile se la carta mostrata non è quella da risolvere */
+#resolve-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 #resolve-btn[hidden], #nemesis-btn[hidden], #reset-btn[hidden] {
