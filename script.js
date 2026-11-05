@@ -1,8 +1,12 @@
 const canvas = document.getElementById('canvas');
 const drawBtn = document.getElementById('draw-btn');
+const resetBtn = document.getElementById('reset-btn');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
+
+// Oltre questo numero di carte la dimensione resta fissa e si scorre di lato
+const MAX_VISIBLE = 5;
 
 // Repository GitHub da cui leggere l'elenco delle immagini nella cartella Data
 const GITHUB_OWNER = 'lorenzvittori';
@@ -44,9 +48,12 @@ function layout() {
   const margin = Math.min(W, H) * 0.05;
   const gap = margin / 2;
 
+  // La dimensione si calcola al massimo su MAX_VISIBLE carte: dopo si scorre
+  const fit = Math.min(n, MAX_VISIBLE);
+
   // Larghezza massima se limitati dallo spazio orizzontale
-  const availW = W - 2 * margin - (n - 1) * gap;
-  const widthFromWidth = availW / n;
+  const availW = W - 2 * margin - (fit - 1) * gap;
+  const widthFromWidth = availW / fit;
 
   // Larghezza massima se limitati dallo spazio verticale
   const availH = H - 2 * margin;
@@ -57,6 +64,8 @@ function layout() {
 
   canvas.style.padding = margin + 'px';
   canvas.style.gap = gap + 'px';
+  // Con carte che escono dallo schermo si parte da sinistra, altrimenti si centra
+  canvas.style.justifyContent = n > MAX_VISIBLE ? 'flex-start' : 'center';
 
   cards.forEach(card => {
     card.style.width = cardWidth + 'px';
@@ -71,18 +80,29 @@ function addCard() {
   card.style.backgroundImage = `url("${randomImage()}")`;
   canvas.appendChild(card);
   layout();
+  // Porta in vista la carta appena aggiunta
+  canvas.scrollTo({ left: canvas.scrollWidth, behavior: 'smooth' });
+}
+
+function reset() {
+  canvas.innerHTML = '';
+  canvas.scrollLeft = 0;
+  addCard();
 }
 
 drawBtn.addEventListener('click', addCard);
+resetBtn.addEventListener('click', reset);
 window.addEventListener('resize', layout);
 
 // Avvio: legge l'elenco delle immagini, poi mostra la prima carta
 async function init() {
   drawBtn.disabled = true;
+  resetBtn.disabled = true;
   try {
     cardImages = await loadImageList();
     if (cardImages.length === 0) throw new Error('Nessuna immagine trovata nella cartella Data');
     drawBtn.disabled = false;
+    resetBtn.disabled = false;
     addCard();
   } catch (err) {
     console.error(err);

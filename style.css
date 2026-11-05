@@ -22,7 +22,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 
 .card {
@@ -37,11 +40,12 @@ body {
   flex-shrink: 0;
   display: flex;
   justify-content: center;
+  gap: 12px;
   padding: 16px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
-#draw-btn {
+#draw-btn, #reset-btn {
   padding: 12px 32px;
   font-size: 18px;
   border: none;
@@ -51,6 +55,15 @@ body {
   cursor: pointer;
 }
 
-#draw-btn:active {
+#draw-btn:active, #reset-btn:active {
   opacity: 0.8;
+}
+
+#reset-btn {
+  background: #333;
+  color: #fff;
+}
+
+#draw-btn:disabled, #reset-btn:disabled {
+  opacity: 0.5;
 }
