@@ -46,13 +46,17 @@ body {
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
-/* VistaRisoluzione: coda in alto, semitrasparente, carta corrente con bordo rosso scuro */
+/* VistaRisoluzione: coda in alto, trasparente, carta corrente opaca con bordo bianco */
 #canvas.resolving {
   flex: 0 0 20%;
 }
 
 #canvas.resolving .card {
-  opacity: 0.5;
+  opacity: 0.3;
+}
+
+#canvas.resolving .card.current {
+  opacity: 1;
 }
 
 /* Scritta a destra della carta ingrandita (ultima carta della coda) */
@@ -76,7 +80,7 @@ body {
 }
 
 #canvas .card.current {
-  border: 3px solid #8b0000;
+  border: 3px solid #fff;
 }
 
 /* Carta ingrandita al centro della coda */
