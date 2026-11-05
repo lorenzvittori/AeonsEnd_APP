@@ -181,10 +181,11 @@ function centerQueue() {
   canvas.scrollLeft = left;
 }
 
+// Reset: coda vuota, nessuna carta
 function reset() {
   canvas.querySelectorAll('.card').forEach(card => card.remove());
   canvas.scrollLeft = 0;
-  addCard();
+  layout();
 }
 
 // VistaRisoluzione: porta in vista nella coda la carta da risolvere e le mette sotto la lineetta
@@ -247,6 +248,21 @@ function startResolution() {
   resolveBtn.hidden = false;
   // La coda si restringe in alto: ricalcola la dimensione delle carte
   layout();
+
+  // Coda vuota: non c'è niente da risolvere, si pesca direttamente la carta nuova
+  if (canvas.querySelectorAll('.card').length === 0) {
+    drawNewCard();
+  } else {
+    showCurrent();
+  }
+}
+
+// Pesca una carta casuale in fondo alla coda e la mostra come nuova (con il pulsante Ok)
+function drawNewCard() {
+  const total = canvas.querySelectorAll('.card').length;
+  addCard();
+  newIndex = total;
+  currentIndex = total;
   showCurrent();
 }
 
@@ -285,10 +301,7 @@ function resolveCurrent() {
   }
 
   // Ultima carta della coda risolta: si pesca la nuova carta e la si mostra
-  addCard();
-  newIndex = total;
-  currentIndex = total;
-  showCurrent();
+  drawNewCard();
 }
 
 // Sposta solo la carta mostrata, restando dentro la coda; la carta da risolvere non cambia
@@ -342,7 +355,7 @@ window.addEventListener('resize', () => {
   layoutZoom();
 });
 
-// Avvio: legge l'elenco delle immagini, poi mostra la prima carta
+// Avvio: legge l'elenco delle immagini; la coda parte vuota
 async function init() {
   nemesisBtn.disabled = true;
   resetBtn.disabled = true;
@@ -351,7 +364,6 @@ async function init() {
     if (cardImages.length === 0) throw new Error('Nessuna immagine trovata nella cartella Data');
     nemesisBtn.disabled = false;
     resetBtn.disabled = false;
-    addCard();
   } catch (err) {
     console.error(err);
     nemesisBtn.textContent = 'Errore: immagini non trovate';
