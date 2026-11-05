@@ -38,46 +38,39 @@ body {
   flex-shrink: 0;
 }
 
-/* Token del potere: un'immagine del token (Assets/power-token.webp) per ogni token, nello spazio sopra la carta */
+/* Sopra la carta in coda: un'immagine di token (Assets/power-token.webp) per ogni token del potere, oppure una goccia
+   per ogni punto di vita del minion (rossa Assets/life-drop.webp, grigia Assets/life-drop-lost.webp se persa).
+   Al massimo 5 per fila (script.js: PIPS_PER_ROW); le file in più si impilano verso l'alto. */
 .pips {
   position: absolute;
   left: 0;
   right: 0;
   bottom: calc(100% + 6px);
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: calc(var(--cw, 60px) * 0.05);
+  gap: calc(var(--cw, 60px) * 0.02);
   pointer-events: none;
+}
+
+.pip, .drop {
+  width: calc(var(--cw, 60px) * 0.18);
+  height: calc(var(--cw, 60px) * 0.235);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 .pip {
-  width: calc(var(--cw, 60px) * 0.18);
-  height: calc(var(--cw, 60px) * 0.18);
-  background: url("Assets/power-token.webp") center / contain no-repeat;
+  background-image: url("Assets/power-token.webp");
 }
 
-/* Badge sulla carta in coda: vita dei minion (rosso) */
-.badge {
-  position: absolute;
-  top: 3%;
-  right: 3%;
-  min-width: calc(var(--cw, 60px) * 0.28);
-  height: calc(var(--cw, 60px) * 0.28);
-  padding: 0 calc(var(--cw, 60px) * 0.04);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: max(1px, calc(var(--cw, 60px) * 0.02)) solid #fff;
-  border-radius: 999px;
-  color: #fff;
-  font-size: calc(var(--cw, 60px) * 0.18);
-  font-weight: 700;
-  line-height: 1;
-  pointer-events: none;
+.drop {
+  background-image: url("Assets/life-drop.webp");
 }
 
-.badge.hp {
-  background: #b3261e;
+.drop.lost {
+  background-image: url("Assets/life-drop-lost.webp");
 }
 
 /* Scritta sopra il pulsante in VistaRisoluzione: "DA RISOLVERE" in rosso, poi token o vita */
