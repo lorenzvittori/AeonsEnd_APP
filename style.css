@@ -97,6 +97,25 @@ body {
   border: 3px solid #fff;
 }
 
+/* VistaCoda: toccando una carta si vede ingrandita; toccando fuori si torna alla coda */
+#canvas:not(.resolving) .card {
+  cursor: pointer;
+}
+
+#zoom {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 20;
+}
+
+#zoom[hidden] {
+  display: none;
+}
+
 /* Carta ingrandita al centro della coda */
 #overlay {
   position: fixed;

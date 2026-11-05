@@ -1,5 +1,6 @@
 const canvas = document.getElementById('canvas');
 const overlay = document.getElementById('overlay');
+const zoom = document.getElementById('zoom');
 const nemesisBtn = document.getElementById('nemesis-btn');
 const resetBtn = document.getElementById('reset-btn');
 const resolveBtn = document.getElementById('resolve-btn');
@@ -135,6 +136,34 @@ function layoutOverlay() {
   big.style.borderRadius = (width * 0.05) + 'px';
 }
 
+// VistaCoda: ingrandisce al centro dello schermo la carta toccata
+function layoutZoom() {
+  const big = zoom.firstElementChild;
+  if (!big) return;
+
+  const W = zoom.clientWidth;
+  const H = zoom.clientHeight;
+  const margin = Math.min(W, H) * 0.05;
+  const width = Math.max(0, Math.min(W - 2 * margin, (H - 2 * margin) / CARD_RATIO));
+  big.style.width = width + 'px';
+  big.style.height = (width * CARD_RATIO) + 'px';
+  big.style.borderRadius = (width * 0.05) + 'px';
+}
+
+function openZoom(card) {
+  const big = document.createElement('div');
+  big.className = 'card';
+  big.style.backgroundImage = card.style.backgroundImage;
+  zoom.replaceChildren(big);
+  zoom.hidden = false;
+  layoutZoom();
+}
+
+function closeZoom() {
+  zoom.hidden = true;
+  zoom.replaceChildren();
+}
+
 function addCard() {
   const card = document.createElement('div');
   card.className = 'card';
@@ -268,12 +297,23 @@ overlay.addEventListener('pointercancel', () => {
   swipeStartX = null;
 });
 
+// Tocco su una carta della coda (solo in VistaCoda) = ingrandimento; tocco fuori dalla carta = chiusura
+canvas.addEventListener('click', e => {
+  if (resolving) return;
+  const card = e.target.closest('.card');
+  if (card) openZoom(card);
+});
+zoom.addEventListener('click', e => {
+  if (e.target === zoom) closeZoom();
+});
+
 nemesisBtn.addEventListener('click', nemesisTurn);
 resetBtn.addEventListener('click', reset);
 resolveBtn.addEventListener('click', resolveCurrent);
 window.addEventListener('resize', () => {
   layout();
   layoutOverlay();
+  layoutZoom();
 });
 
 // Avvio: legge l'elenco delle immagini, poi mostra la prima carta
