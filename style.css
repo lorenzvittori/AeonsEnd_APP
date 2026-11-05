@@ -38,6 +38,7 @@ body {
 
 .controls {
   flex-shrink: 0;
+  margin-top: auto;
   display: flex;
   justify-content: center;
   gap: 12px;
@@ -45,9 +46,33 @@ body {
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
-/* VistaRisoluzione: coda semitrasparente, carta corrente con bordo rosso scuro */
+/* VistaRisoluzione: coda in alto, semitrasparente, carta corrente con bordo rosso scuro */
+#canvas.resolving {
+  flex: 0 0 20%;
+}
+
 #canvas.resolving .card {
   opacity: 0.5;
+}
+
+/* Scritta a destra della carta ingrandita (ultima carta della coda) */
+#overlay .card {
+  position: relative;
+}
+
+.new-label {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 6px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 2px;
+  color: #ff3b30;
 }
 
 #canvas .card.current {

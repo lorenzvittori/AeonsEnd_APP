@@ -3,12 +3,16 @@ const overlay = document.getElementById('overlay');
 const nemesisBtn = document.getElementById('nemesis-btn');
 const resetBtn = document.getElementById('reset-btn');
 const resolveBtn = document.getElementById('resolve-btn');
+const controls = document.querySelector('.controls');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
 
 // Oltre questo numero di carte la dimensione resta fissa e si scorre di lato
 const MAX_VISIBLE = 5;
+
+// Spazio (px) lasciato ai lati della carta ingrandita per la scritta NUOVA
+const LABEL_SPACE = 30;
 
 // Repository GitHub da cui leggere l'elenco delle immagini nella cartella Data
 const GITHUB_OWNER = 'lorenzvittori';
@@ -80,21 +84,29 @@ function layout() {
   });
 }
 
-// Posiziona l'overlay sopra il canvas e ingrandisce la carta al centro
+// Posiziona l'overlay nello spazio sotto la coda e ingrandisce la carta al centro
 function layoutOverlay() {
   if (!resolving) return;
 
-  const rect = canvas.getBoundingClientRect();
+  const queueRect = canvas.getBoundingClientRect();
+  const rect = {
+    left: queueRect.left,
+    top: queueRect.bottom,
+    width: queueRect.width,
+    height: controls.getBoundingClientRect().top - queueRect.bottom
+  };
   overlay.style.left = rect.left + 'px';
   overlay.style.top = rect.top + 'px';
   overlay.style.width = rect.width + 'px';
-  overlay.style.height = rect.height + 'px';
+  overlay.style.height = Math.max(0, rect.height) + 'px';
 
   const big = overlay.firstElementChild;
   if (!big) return;
 
+  // Lo spazio a destra e a sinistra è riservato alla scritta NUOVA
   const margin = Math.min(rect.width, rect.height) * 0.05;
-  const width = Math.max(0, Math.min(rect.width - 2 * margin, (rect.height - 2 * margin) / CARD_RATIO));
+  const side = margin + LABEL_SPACE;
+  const width = Math.max(0, Math.min(rect.width - 2 * side, (rect.height - 2 * margin) / CARD_RATIO));
   big.style.width = width + 'px';
   big.style.height = (width * CARD_RATIO) + 'px';
   big.style.borderRadius = (width * 0.05) + 'px';
@@ -124,6 +136,15 @@ function showCurrent() {
   const big = document.createElement('div');
   big.className = 'card';
   big.style.backgroundImage = cards[currentIndex].style.backgroundImage;
+
+  // L'ultima carta della coda è quella appena aggiunta
+  if (currentIndex === cards.length - 1) {
+    const label = document.createElement('span');
+    label.className = 'new-label';
+    label.textContent = 'NUOVA';
+    big.appendChild(label);
+  }
+
   overlay.replaceChildren(big);
   layoutOverlay();
 
@@ -138,6 +159,8 @@ function startResolution() {
   nemesisBtn.hidden = true;
   resetBtn.hidden = true;
   resolveBtn.hidden = false;
+  // La coda si restringe in alto: ricalcola la dimensione delle carte
+  layout();
   showCurrent();
 }
 
@@ -151,6 +174,7 @@ function endResolution() {
   nemesisBtn.hidden = false;
   resetBtn.hidden = false;
   resolveBtn.hidden = true;
+  layout();
 }
 
 function nemesisTurn() {
