@@ -19,13 +19,8 @@ const LABEL_SPACE = 30;
 // Distanza minima (px) di uno slide per cambiare carta in VistaRisoluzione
 const SWIPE_MIN_DISTANCE = 50;
 
-// Repository GitHub da cui leggere l'elenco delle immagini nella cartella Data
-const GITHUB_OWNER = 'lorenzvittori';
-const GITHUB_REPO = 'AeonsEnd_APP';
-const DATA_FOLDER = 'Data';
-
-// Riempito automaticamente all'avvio con i file .png/.jpg/.jpeg della cartella Data
-let cardImages = [];
+// Carte da cui si pesca, lette all'avvio da cards.json (generato da cards.csv con tools/build-cards.ps1)
+let cardPool = [];
 
 // Stato della VistaRisoluzione (false = VistaCoda)
 let resolving = false;
@@ -36,18 +31,16 @@ let viewIndex = 0;
 // Indice della carta appena pescata alla fine della risoluzione (-1 = nessuna)
 let newIndex = -1;
 
-async function loadImageList() {
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FOLDER}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Impossibile leggere la cartella Data (' + res.status + ')');
-  const files = await res.json();
-  return files
-    .filter(f => f.type === 'file' && /\.(png|jpe?g)$/i.test(f.name))
-    .map(f => DATA_FOLDER + '/' + encodeURIComponent(f.name));
+// Per ora si pesca a caso solo tra le carte del mazzo base (Basic Nemesis); le altre arriveranno con la scelta della battaglia
+async function loadCardPool() {
+  const res = await fetch('cards.json', { cache: 'no-cache' });
+  if (!res.ok) throw new Error('Impossibile leggere cards.json (' + res.status + ')');
+  const cards = await res.json();
+  return cards.filter(c => c.category === 'Basic Nemesis' && c.type !== 'Curse');
 }
 
-function randomImage() {
-  return cardImages[Math.floor(Math.random() * cardImages.length)];
+function randomCard() {
+  return cardPool[Math.floor(Math.random() * cardPool.length)];
 }
 
 function layout() {
@@ -169,7 +162,9 @@ function closeZoom() {
 function addCard() {
   const card = document.createElement('div');
   card.className = 'card';
-  card.style.backgroundImage = `url("${randomImage()}")`;
+  const data = randomCard();
+  card.dataset.id = data.id;
+  card.style.backgroundImage = `url("${encodeURI(data.image)}")`;
   canvas.appendChild(card);
   layout();
   centerQueue();
@@ -353,13 +348,13 @@ window.addEventListener('resize', () => {
   layoutZoom();
 });
 
-// Avvio: legge l'elenco delle immagini; la coda parte vuota
+// Avvio: legge cards.json; la coda parte vuota
 async function init() {
   nemesisBtn.disabled = true;
   resetBtn.disabled = true;
   try {
-    cardImages = await loadImageList();
-    if (cardImages.length === 0) throw new Error('Nessuna immagine trovata nella cartella Data');
+    cardPool = await loadCardPool();
+    if (cardPool.length === 0) throw new Error('Nessuna carta trovata in cards.json');
     nemesisBtn.disabled = false;
     resetBtn.disabled = false;
   } catch (err) {

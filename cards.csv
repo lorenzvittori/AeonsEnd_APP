@@ -1,0 +1,174 @@
+Category,Tier/Nemesis,Name,Type,Hp,Power,Effect,ID,Path_FRONT
+Basic Nemesis,Tier 1,Drillbeak Wurm,Minion,6,-,PERSISTENT: Any player suffers 1 damage. Gravehold suffers 1 damage.,NA-1c-24,
+Basic Nemesis,Tier 1,Carriode Colony,Minion,8,-,"IMMEDIATELY: This minion suffers damage equal to the number of players in the game.
+PERSISTENT: Unleash.",NA-1c-26,
+Basic Nemesis,Tier 1,Chaos Orb,Power,-,3,"TO DISCARD: Spend 6 Æ.
+POWER 3: Unleash. Gravehold suffers 4 damage.",NA-1c-27,
+Specific,Maggoth,Vivify,Attack,-,-,"If there are seven or less total flies and maggots, place five flies into play. Otherwise, any player suffers 4 damage and discards their most expensive prepped spell.",NA-1c-05,
+Basic Nemesis,Tier 1,Disorient,Attack,-,-,"Unleash. Any player suffers 1 damage and discards a card in hand. If that card is a gem, Gravehold suffers 2 damage.",NA-1c-28,
+Specific,Maggoth,Savage Spawner,Minion,17,-,PERSISTENT: Place two flies into play.,NA-1c-07,
+Basic Nemesis,Tier 1,Rend,Attack,-,-,"Unleash.
+Gravehold suffers 1 damage.
+Any player suffers 2 damage.",NA-1c-29,
+Basic Nemesis,Tier 1,Unnerving Howl,Power,-,2,POWER 2: Unleash. Any player discards two gems in hand.,NA-1c-30,
+Basic Nemesis,Tier 1,Ceaseless Darkness,Power,-,2,"TO DISCARD: Spend 5 Æ.
+POWER 2: Unleash. Any player suffers 3 damage. Any player discards a card in hand.",NA-1c-31,
+Specific,Maggoth,Egg Burst,Power,-,1,"TO DISCARD: Destroy four cards in hand.
+POWER 1: Place three flies into play. Any player suffers 3 damage.",NA-1c-11,
+Basic Nemesis,Tier 1,Aether Shock,Attack,-,-,"Unleash.
+The player with the most prepped spells suffers 1 damage and dicards a prepped spell.",NA-1c-32,
+Basic Nemesis,Tier 2,Decay,Attack,-,-,Unleash twice. Any player or Gravehold suffers 3 damage.,NA-1c-13,
+Specific,Maggoth,Shape Death,Power,-,3,"TO DISCARD: Spend 7 Æ.
+POWER 3: If there are seven or less total flies and maggots, place three flies and one maggot into play. Otherwise, any player suffers 4 damage.",NA-1c-14,
+Basic Nemesis,Tier 2,Culling Scythe,Power,-,2,"TO DISCARD: Spend 7 Æ.
+POWER 2: Unleash. The player with the lowest life suffers 4 damage.",NA-1c-15,
+Specific,Maggoth,Vile Breeder,Minion,9,-,PERSISTENT: Place a maggot into play. Any player suffers 2 damage.,NA-1c-16,
+Basic Nemesis,Tier 2,Fugue,Attack,-,-,Any player discards three cards in hand and suffers 2 damage.,NA-1c-17,
+Basic Nemesis,Tier 2,Volcanic Zala,Minion,10,-,"PERSISTENT: Gravehold suffers 3 damage.
+OR
+Any player loses 2 charges.",NA-1c-18,
+Specific,Maggoth,Overrun,Attack,-,-,"Place six maggots into play.
+OR
+Any player suffers 5 damage.",NA-1c-19,
+Basic Nemesis,Tier 2,Portal Guardian,Minion,8,-,PERSISTENT: Unleash. Any player suffers 1 damage.,NA-1c-20,
+Basic Nemesis,Tier 2,Obliterating Meteor,Power,-,1,"TO DISCARD: Discard four cards in hand.
+POWER 1: Unleash twice. Gravehold suffers 3 damage.",NA-1c-21,
+Specific,Maggoth,Morph,Attack,-,-,"Place a fly into play.
+Any player suffers 3 damage.",NA-1c-22,
+Specific,Maggoth,Hive Surge,Power,-,1,"TO DISCARD: Discard three cards in hand.
+POWER 1: Place a maggot into play. Then, place two flies into play.",NA-1c-23,
+Specific,Maggoth,Fly Throng,Power,-,3,"TO DISCARD: Spend 6 Æ.
+POWER 3: Place three maggots into play. Any player suffers 3 damage.",NA-1c-25,
+Basic Nemesis,Tier 2,Dement,Attack,-,-,"Unleash twice.
+Any player suffers 1 damage and places their most expensive card in hand on top of their deck.",NA-1c-12,
+Basic Nemesis,Tier 3,Eliminate,Attack,-,-,"Unleash three times.
+OR
+Gravehold suffers 6 damage.
+OR
+Any player suffers 5 damage.",NA-1c-02,
+Basic Nemesis,Tier 3,Crushing Storm,Power,-,1,"TO DISCARD: Destroy two opened breaches.
+POWER 1: Unleash three times. Banish this.",NA-1c-03,
+Basic Nemesis,Tier 3,Gnashing Maw,Power,-,2,"POWER 2: Unleash. The player with the most expensive prepped spell destroys it. If that spell costs 4 Æ or less, Unleash and any player suffers 3 damage.",NA-1c-04,
+Specific,Arachnos,Bolster,Attack,-,-,"Arachnos gains one nemesis token.
+OR
+Unleash. Any player suffers 3 damage.",NA-2a-19,
+Upgraded Basic Nemesis,Tier 1,Hissing Acid,Power,-,3,"TO DISCARD: Spend 6 Æ.
+POWER 3: Reveal the top card of the turn order deck. If it's a player turn order card, Unleash three times. Otherwise, any player suffers 5 damage.",NA-3a-02,
+Upgraded Basic Nemesis,Tier 1,Bane Commander,Minion,6,-,PERSISTENT: Unleash. Any player suffers 1 damage.,NA-4-02,
+Specific,Arachnos,The Chanters,Minion,4,-,PERSISTENT: Arachnos gains one nemesis token.,NA-2a-20,
+Specific,Arachnos,Breach Stabilizer,Power,-,2,"TO DISCARD: Spend 5 Æ.
+POWER 2: Unleash. Arachnos gains one nemesis token.",NA-2a-21,
+Specific,Arachnos,Unveil,Attack,-,-,"Gravehold suffers 5 damage.
+OR
+Arachnos gains two nemesis tokens.",NA-2a-22,
+Upgraded Basic Nemesis,Tier 2,Marked,Attack,-,-,"Unleash twice.
+The player with the lowest life suffers 3 damage.",NA-3a-03,
+Specific,Arachnos,Flame Acolyte,Minion,8,-,"PERSISTENT: If Arachnos has three or less nemesis tokens, Arachnos gains one nemesis token. Otherwise, any player suffers 3 damage.",NA-2a-23,
+Specific,Arachnos,Empower Ritual,Power,-,3,"TO DISCARD: Spend 7 Æ.
+POWER 3: Arachnos gains one nemesis token. Gravehold suffers 4 damage.",NA-2a-24,
+Specific,Arachnos,Terminate,Attack,-,-,"If Arachnos has four or less nemesis tokens, Arachnos gains three nemesis tokens. Otherwise, Unleash three times.",NA-2a-25,
+Specific,Arachnos,Ritual Guardian,Minion,15,-,PERSISTENT: Arachnos gains one nemesis token. Unleash.,NA-2a-26,
+Specific,Arachnos,The End,Power,-,4,"IMMEDIATELY: Arachnos gains 15 life.
+POWER 4: The ritual is complete.",NA-2a-27,
+Specific,Arachnos,World Devourer (Tier 0),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 5. At the start of each nemesis turn: Gravehold suffers 3 damage. Any player suffers 3 damage.,NA-2a-09,
+Specific,Arachnos,World Devourer (Tier 1),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 10. At the start of each nemesis turn: Gravehold suffers 3 damage. Any player suffers 3 damage.,NA-2a-10,
+Specific,Arachnos,World Devourer (Tier 2),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 10. At the start of each nemesis turn: Gravehold suffers 4 damage. Any player suffers 3 damage.,NA-2a-11,
+Specific,Arachnos,World Devourer (Tier 3),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 15. At the start of each nemesis turn: Gravehold suffers 4 damage. Any player suffers 4 damage.,NA-2a-12,
+Upgraded Basic Nemesis,Tier 2,Needle Doom,Minion,12,-,PERSISTENT: Unleash. Gravehold suffers 2 damage.,NA-4-03,
+Specific,Arachnos,World Devourer (Tier 4),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 20. At the start of each nemesis turn: Gravehold suffers 4 damage. Any player suffers 4 damage.,NA-2a-13,
+Specific,Arachnos,World Devourer (Tier 5),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 20. At the start of each nemesis turn: Gravehold suffers 5 damage. Any player suffers 4 damage.,NA-2a-14,
+Specific,Arachnos,World Devourer (Tier 6),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 25. At the start of each nemesis turn: Gravehold suffers 5 damage. Any player suffers 4 damage.,NA-2a-15,
+Specific,Ageless Walker,Curse of Aging,Curse,-,-,"This cannot be destroyed or exiled.
+When this is in your hand, immediately suffer 1 damage and draw a card. Then, discard this card.",NA-3a-06 - NA-3a-09,
+Specific,Ageless Walker,Age Siphon,Attack,-,-,"Any player exiles a spell in their hand or discard pile.
+Gravehold suffers 2 damage.",NA-3a-10,
+Specific,Ageless Walker,Enveloping Ooze,Minion,5,-,PERSISTENT: Gravehold suffers 2 damage. Any player discards the top card of their deck.,NA-3a-11,
+Specific,Ageless Walker,Temporal Leap,Power,-,3,POWER 3: The players collectively exile two cards in hand.,NA-3a-12,
+Specific,Ageless Walker,Timeless Serpent,Minion,12,-,"IMMEDIATELY: Any player exiles one card in hand.
+PERSISTENT: Any player discards their most expensive card in hand.",NA-3a-13,
+Specific,Ageless Walker,Burden of Knowledge,Power,-,3,POWER 3: The players collectively exile two cards in hand or discard pile that costs 2 Æ or more.,NA-3a-14,
+Specific,Ageless Walker,Rush of Madness,Power,-,3,"TO DISCARD: Spend 7 Æ.
+POWER 3: Unleash twice. Exile a card from the most expensive supply pile. Gravehold suffers 4 damage.",NA-3a-15,
+Specific,Ageless Walker,Siege of Dust,Power,-,1,"POWER 1: Unleash. If the top card of the exiled pile costs more than 0 Æ, Gravehold suffers 4 damage. Otherwise, Gravehold suffers 8 damage.",NA-3a-16,
+Specific,Ageless Walker,Forget,Attack,-,-,"Any player exiles two cards in hand and draws two cards.
+Gravehold suffers 5 damage.",NA-3a-17,
+Specific,Ageless Walker,Spire of Bone,Minion,16,-,"IMMEDIATELY: Destroy all of the cards in the exiled pile.
+PERSISTENT: Any player exiles a card in hand and draws a card. Gravehold suffers 2 damage.",NA-3a-18,
+Upgraded Basic Nemesis,Tier 3,Flash of Decay,Power,-,2,"POWER 2: Unleash twice. The player with the most expensive prepped spell destroys it. If that spell costs 4 Æ or less, or no spell was destroyed, Unleash.",NA-3a-04,
+Upgraded Basic Nemesis,Tier 3,Terrify,Attack,-,-,"Unleash three times.
+Gravehold suffers 2 damage.
+Any player destroys two cards in hand.",NA-3a-05,
+Upgraded Basic Nemesis,Tier 3,Burialskulk,Minion,18,-,PERSISTENT: Unleash twice.,NA-4-04,
+Upgraded Basic Nemesis,Tier 3,Thunderous Tempest,Power,-,2,"TO DISCARD: Spend 9 Æ.
+POWER 2: Unleash. If there are two nemesis turn order cards in the turn order pile, any player suffers 8 damage. Otherwise, any player suffers 5 damage.",NA-4-05,
+Specific,Fenrix,Rending Claw,Minion,5,-,"Prevent all damage dealt to this minion by players without a Position token on this minion.
+IMMEDIATELY: Any player may place a Position token on this minion.
+PERSISTENT: Any player with a Position token on this claw suffers 2 damage or Gravehold suffers 2 damage.",NA-4-06 - NA-4-10,
+Specific,Fenrix,Dodge,Attack,-,-,"Unleash. Return any player's Position token on a minion to that player.
+OR
+Unleash. Any player suffers 2 damage and discards a card in hand.",NA-4-11,
+Specific,Fenrix,Crazed Whelps,Power,-,3,POWER 3: Place two claws into play. Set the life of those minions to 2. Do not resolve these minions' PERSISTENT effects this turn.,NA-4-12,
+Specific,Fenrix,Rally the Pack,Power,-,2,"POWER 2: If there are no claws in play, Unleash twice. Otherwise, Unleash, any player suffers 3 damage, and places their Position token on a claw.",NA-4-13,
+Specific,Fenrix,Obscure,Attack,-,-,"Players cannot place Position tokens on claws this turn.
+Unleash twice.
+The player with the most expensive prepped spell places that spell on top of their deck.",NA-4-14,
+Specific,Fenrix,Hunting Claw,Minion,8,-,"Prevent all damage dealt to this by players without a Position token on this. When this is discarded, place it in Fenrix's discard pile.
+IMMEDIATELY: Any player may place a Position token on this.
+PERSISTENT: Any player with a Position token on this claw suffers 2 damage or Gravehold suffers 2 damage.",NA-4-15,
+Specific,Fenrix,Spring of Fury,Power,-,3,"TO DISCARD: Spend 7 Æ.
+POWER 3: Unleash twice.
+Place this next to the nemesis mat. For the rest of the game, when a claw is placed into play, place it into play with 1 additional life.",NA-4-16,
+Specific,Fenrix,Lacerate,Attack,-,-,"If there are two or less claws in play, Unleash three times. Otherwise, resolve the persistent effect of each claw in play.",NA-4-17,
+Specific,Fenrix,Molten Alpha,Minion,15,-,"IMMEDIATELY: Place each player's Position token on this minion.
+PERSISTENT: Gravehold suffers 4 damage.",NA-4-18,
+Specific,Fenrix,Aether Blizzard,Power,-,2,"TO DISCARD: Destroy three cards in hand that cost 3 Æ or more.
+POWER 2: Unleash three times. Return one player's Position token on a minion to that player. Players cannot place Position tokens on claws this turn.",NA-4-19,
+Basic Nemesis,Tier 3,Disperse,Attack,-,-,"Unleash twice.
+Any player suffers 2 damage and destroys their most expensive card in hand.",NA-1c-06,
+Basic Nemesis,Tier 3,Gore,Attack,-,-,"Unleash twice.
+The player with the most expensive card in hand discards three cards in hand. Then, for each card in that player's hand that costs 2 Æ or more, that player suffers 2 damage.",NA-1c-08,
+Basic Nemesis,Tier 3,Hex of Destruction,Power,-,2,"TO DISCARD: Spend 8 Æ.
+POWER 2: Unleash twice. Gravehold suffers 4 damage. Any player destroys the top four cards of their deck.",NA-1c-09,
+Basic Nemesis,Tier 3,Eternal Watcher,Minion,10,-,"PERSISTENT: Any player suffers 3 damage. If this minion has 6 or less life, it gains 3 life.",NA-1c-10,
+Specific,Arachnos,World Devourer (Tier 7),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 30. At the start of each nemesis turn: Gravehold suffers 5 damage. Any player suffers 4 damage.,NA-2a-16,
+Specific,Arachnos,World Devourer (Tier 8),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 35. At the start of each nemesis turn: Gravehold suffers 5 damage. Any player suffers 4 damage.,NA-2a-17,
+Basic Nemesis,Tier 1,Decimate,Attack,-,-,"Unleash twice and any player gains 2 charges.
+OR
+Gravehold suffers 4 damage.",NA-END-135,
+Basic Nemesis,Tier 1,Blind Enigma,Minion,7,-,"PERSISTENT: Any player suffers 1 damage. If the nemesis tier is 2 or higher, that player suffers 2 additional damage.",NA-END-136,
+Basic Nemesis,Tier 1,Planar Collision,Power,-,2,"TO DISCARD: Discard two prepped spells.
+POWER 2: Unleash twice.",NA-END-137,
+Basic Nemesis,Tier 1,Spirit Snare,Power,-,3,"TO DISCARD: Discard a card in hand that costs 5 Æ or more.
+POWER 3: Unleash. Any player discards a spell in hand and suffers 2 damage.",NA-END-138,
+Basic Nemesis,Tier 2,Mutilate,Attack,-,-,"Unleash.
+The players collectively discard two prepped spells. Any player suffers 2 damage.",NA-END-139,
+Basic Nemesis,Tier 2,Needlemaw,Minion,11,-,PERSISTENT: Gravehold suffers 2 damage.,NA-END-140,
+Basic Nemesis,Tier 2,Morbid Gyre,Power,-,1,"TO DISCARD: Spend 7 Æ.
+POWER 1: Unleash twice. The players collectively discard three cards in hand.",NA-END-141,
+Basic Nemesis,Tier 2,Gravity Splinter,Power,-,2,"TO DISCARD: Spend 7 Æ.
+POWER 2: Unleash twice. The player with the fewest opened breaches suffers 3 damage.",NA-END-142,
+Basic Nemesis,Tier 3,Sunder,Attack,-,-,"Gravehold suffers 4 damage and the player with the lowest life suffers 4 damage.
+OR
+Shuffle all of the nemesis turn order cards into the turn order deck.",NA-END-143,
+Basic Nemesis,Tier 3,Topple,Attack,-,-,"Unleash twice.
+Gravehold suffers 4 damage.",NA-END-144,
+Basic Nemesis,Tier 3,Monstrosity of Omens,Minion,5,-,"When damage is dealt to this minion, reduce that damage to 1.
+PERSISTENT: Gravehold suffers damage equal to this minion's current life.",NA-END-145,
+Specific,Arachnos,World Devourer (Tier 9+),Minion,*,-,IMMEDIATELY: Set this minion's life equal to the current life of Arachnos plus 40. At the start of each nemesis turn: Gravehold suffers 4 damage. Any player suffers 5 damage.,NA-2a-18,
+Upgraded Basic Nemesis,Tier 1,Wreck,Attack,-,-,"Unleash twice.
+Gravehold suffers 1 damage.",NA-2a-02,
+Upgraded Basic Nemesis,Tier 2,Separate,Attack,-,-,"Unleash twice.
+Gravehold suffers 2 damage.
+The player with the most expensive prepped spell discards that spell.",NA-2a-03,
+Upgraded Basic Nemesis,Tier 2,Sky Tremor,Power,-,1,"TO DISCARD: Spend 7 Æ.
+POWER 1: Unleash twice. Gravehold suffers 4 damage.",NA-2a-04,
+Upgraded Basic Nemesis,Tier 2,Engulfing Madness,Power,-,2,"TO DISCARD: Spend 8 Æ.
+POWER 2: Unleash twice. Any player suffers 4 damage.",NA-2a-05,
+Upgraded Basic Nemesis,Tier 3,Sacrifice,Attack,-,-,"Unleash four times.
+OR
+Gravehold suffers 4 damage and any player suffers 4 damage.",NA-2a-06,
+Upgraded Basic Nemesis,Tier 3,Eradicate,Attack,-,-,"Unleash twice.
+Any player discards their three most expensive cards in hand.",NA-2a-07,
+Upgraded Basic Nemesis,Tier 3,Ray of Desolation,Power,-,1,POWER 1: Unleash twice. The players collectively destroy the two most expensive prepped spells.,NA-2a-08,
+Basic Nemesis,Tier 3,Doom Aegis,Power,-,1,"TO DISCARD: Spend 7 Æ.
+POWER 1: The player with the most charges suffers 4 damage and loses all of their charges.",NA-END-146,
