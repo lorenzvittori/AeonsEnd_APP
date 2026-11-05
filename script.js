@@ -36,6 +36,9 @@ const SWIPE_MIN_DISTANCE = 50;
 const PIPS_ROW_RATIO = 0.13;
 const PIPS_SPACE_EXTRA = 6;
 
+// Valore in punti vita della goccia grande (la piccola vale 1)
+const DROP_BIG_VALUE = 5;
+
 // Spazio (px) tra gli elementi della VistaCartaCoda (carta, scritta, pulsanti): lo stesso di #zoom in style.css
 const ZOOM_GAP = 12;
 
@@ -184,24 +187,21 @@ function layout() {
 }
 
 // Badge sulla carta in coda: token rimasti (potere) o vita (minion)
-// Quanti elementi (token o gocce) ha la carta sopra di sé
-function pipCount(card) {
-  const { data, tokens, hp, maxHp } = card.state;
-  if (data.type === 'Power') return Math.max(0, tokens);
-  if (data.type === 'Minion' && hp !== null && hp !== undefined) return Math.max(maxHp, hp);
-  return 0;
+// Elementi da mostrare sopra la carta, come classi CSS:
+// - potere: un token per ogni token rimasto;
+// - minion: la vita attuale in gocce, quante più possibile da 5 (più grandi) e il resto da 1.
+//   La vita persa non si rappresenta: con il danno le gocce si ricalcolano (es. 10 = 5+5, dopo -1 diventa 9 = 5+1+1+1+1).
+function pipClasses(card) {
+  const { data, tokens, hp } = card.state;
+  if (data.type === 'Power') return Array(Math.max(0, tokens)).fill('pip');
+  if (data.type === 'Minion' && hp !== null && hp !== undefined && hp > 0) {
+    return [...Array(Math.floor(hp / DROP_BIG_VALUE)).fill('drop5'), ...Array(hp % DROP_BIG_VALUE).fill('drop')];
+  }
+  return [];
 }
 
-// Sopra la carta: potere = un token per ogni token rimasto; minion = una goccia per ogni punto di vita
-// (rossa se è ancora vita, grigia se è stata persa col danno)
 function updateBadge(card) {
-  const { data, hp } = card.state;
-  const classes = [];
-  const count = pipCount(card);
-  for (let i = 0; i < count; i++) {
-    if (data.type === 'Power') classes.push('pip');
-    else classes.push(i < hp ? 'drop' : 'drop lost');
-  }
+  const classes = pipClasses(card);
 
   let pips = card.querySelector('.pips');
   if (classes.length === 0) {
@@ -398,8 +398,6 @@ function changeHp(delta) {
     removeZoomedCard();
     return;
   }
-  // Se si cura oltre la vita iniziale compaiono altre gocce rosse
-  card.state.maxHp = Math.max(card.state.maxHp, card.state.hp);
   updateBadge(card);
   zoom.querySelector('.zoom-info').textContent = cardInfo(card);
 }
@@ -418,7 +416,7 @@ function addCard(data) {
   card.className = 'card';
   card.dataset.id = data.id;
   // Stato della carta in gioco: token rimasti e vita attuale
-  card.state = { data, tokens: data.tokens, hp: data.hp, maxHp: data.hp };
+  card.state = { data, tokens: data.tokens, hp: data.hp };
   card.style.backgroundImage = `url("${encodeURI(data.image)}")`;
   canvas.appendChild(card);
   updateBadge(card);
