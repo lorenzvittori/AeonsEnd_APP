@@ -89,7 +89,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  /* Lo slide orizzontale è gestito da script.js, quello verticale resta al browser */
+  touch-action: pan-y;
   z-index: 10;
 }
 

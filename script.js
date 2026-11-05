@@ -14,6 +14,9 @@ const MAX_VISIBLE = 5;
 // Spazio (px) lasciato ai lati della carta ingrandita per la scritta NUOVA
 const LABEL_SPACE = 30;
 
+// Distanza minima (px) di uno slide per cambiare carta in VistaRisoluzione
+const SWIPE_MIN_DISTANCE = 50;
+
 // Repository GitHub da cui leggere l'elenco delle immagini nella cartella Data
 const GITHUB_OWNER = 'lorenzvittori';
 const GITHUB_REPO = 'AeonsEnd_APP';
@@ -197,6 +200,40 @@ function resolveCurrent() {
     endResolution();
   }
 }
+
+// Torna alla carta precedente della coda (non va prima della prima)
+function previousCard() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    showCurrent();
+  }
+}
+
+// Slide in VistaRisoluzione: verso sinistra = carta successiva (come Risolta), verso destra = precedente
+let swipeStartX = null;
+let swipeStartY = null;
+
+overlay.addEventListener('pointerdown', e => {
+  swipeStartX = e.clientX;
+  swipeStartY = e.clientY;
+});
+
+overlay.addEventListener('pointerup', e => {
+  if (swipeStartX === null) return;
+  const dx = e.clientX - swipeStartX;
+  const dy = e.clientY - swipeStartY;
+  swipeStartX = null;
+  if (Math.abs(dx) < SWIPE_MIN_DISTANCE || Math.abs(dx) < Math.abs(dy)) return;
+  if (dx < 0) {
+    resolveCurrent();
+  } else {
+    previousCard();
+  }
+});
+
+overlay.addEventListener('pointercancel', () => {
+  swipeStartX = null;
+});
 
 nemesisBtn.addEventListener('click', nemesisTurn);
 resetBtn.addEventListener('click', reset);
