@@ -1,6 +1,8 @@
 const canvas = document.getElementById('canvas');
-const drawBtn = document.getElementById('draw-btn');
+const overlay = document.getElementById('overlay');
+const nemesisBtn = document.getElementById('nemesis-btn');
 const resetBtn = document.getElementById('reset-btn');
+const resolveBtn = document.getElementById('resolve-btn');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
@@ -15,6 +17,10 @@ const DATA_FOLDER = 'Data';
 
 // Riempito automaticamente all'avvio con i file .png/.jpg/.jpeg della cartella Data
 let cardImages = [];
+
+// Stato della VistaRisoluzione (false = VistaCoda)
+let resolving = false;
+let currentIndex = 0;
 
 async function loadImageList() {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FOLDER}`;
@@ -74,6 +80,26 @@ function layout() {
   });
 }
 
+// Posiziona l'overlay sopra il canvas e ingrandisce la carta al centro
+function layoutOverlay() {
+  if (!resolving) return;
+
+  const rect = canvas.getBoundingClientRect();
+  overlay.style.left = rect.left + 'px';
+  overlay.style.top = rect.top + 'px';
+  overlay.style.width = rect.width + 'px';
+  overlay.style.height = rect.height + 'px';
+
+  const big = overlay.firstElementChild;
+  if (!big) return;
+
+  const margin = Math.min(rect.width, rect.height) * 0.05;
+  const width = Math.max(0, Math.min(rect.width - 2 * margin, (rect.height - 2 * margin) / CARD_RATIO));
+  big.style.width = width + 'px';
+  big.style.height = (width * CARD_RATIO) + 'px';
+  big.style.borderRadius = (width * 0.05) + 'px';
+}
+
 function addCard() {
   const card = document.createElement('div');
   card.className = 'card';
@@ -90,23 +116,78 @@ function reset() {
   addCard();
 }
 
-drawBtn.addEventListener('click', addCard);
+// VistaRisoluzione: mostra ingrandita la carta corrente della coda
+function showCurrent() {
+  const cards = canvas.querySelectorAll('.card');
+  cards.forEach((card, i) => card.classList.toggle('current', i === currentIndex));
+
+  const big = document.createElement('div');
+  big.className = 'card';
+  big.style.backgroundImage = cards[currentIndex].style.backgroundImage;
+  overlay.replaceChildren(big);
+  layoutOverlay();
+
+  cards[currentIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+function startResolution() {
+  resolving = true;
+  currentIndex = 0;
+  canvas.classList.add('resolving');
+  overlay.hidden = false;
+  nemesisBtn.hidden = true;
+  resetBtn.hidden = true;
+  resolveBtn.hidden = false;
+  showCurrent();
+}
+
+// Ritorno alla VistaCoda
+function endResolution() {
+  resolving = false;
+  canvas.classList.remove('resolving');
+  canvas.querySelectorAll('.card.current').forEach(card => card.classList.remove('current'));
+  overlay.replaceChildren();
+  overlay.hidden = true;
+  nemesisBtn.hidden = false;
+  resetBtn.hidden = false;
+  resolveBtn.hidden = true;
+}
+
+function nemesisTurn() {
+  addCard();
+  startResolution();
+}
+
+function resolveCurrent() {
+  currentIndex++;
+  if (currentIndex < canvas.querySelectorAll('.card').length) {
+    showCurrent();
+  } else {
+    endResolution();
+  }
+}
+
+nemesisBtn.addEventListener('click', nemesisTurn);
 resetBtn.addEventListener('click', reset);
-window.addEventListener('resize', layout);
+resolveBtn.addEventListener('click', resolveCurrent);
+window.addEventListener('resize', () => {
+  layout();
+  layoutOverlay();
+});
 
 // Avvio: legge l'elenco delle immagini, poi mostra la prima carta
 async function init() {
-  drawBtn.disabled = true;
+  nemesisBtn.disabled = true;
   resetBtn.disabled = true;
   try {
     cardImages = await loadImageList();
     if (cardImages.length === 0) throw new Error('Nessuna immagine trovata nella cartella Data');
-    drawBtn.disabled = false;
+    nemesisBtn.disabled = false;
     resetBtn.disabled = false;
     addCard();
   } catch (err) {
     console.error(err);
-    drawBtn.textContent = 'Errore: immagini non trovate';
+    nemesisBtn.textContent = 'Errore: immagini non trovate';
   }
 }
 

@@ -45,8 +45,31 @@ body {
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
-#draw-btn, #reset-btn {
-  padding: 12px 32px;
+/* VistaRisoluzione: coda semitrasparente, carta corrente con bordo rosso scuro */
+#canvas.resolving .card {
+  opacity: 0.5;
+}
+
+#canvas .card.current {
+  border: 3px solid #8b0000;
+}
+
+/* Carta ingrandita al centro della coda */
+#overlay {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#overlay[hidden] {
+  display: none;
+}
+
+#nemesis-btn, #reset-btn, #resolve-btn {
+  padding: 12px 24px;
   font-size: 18px;
   border: none;
   border-radius: 8px;
@@ -55,7 +78,7 @@ body {
   cursor: pointer;
 }
 
-#draw-btn:active, #reset-btn:active {
+#nemesis-btn:active, #reset-btn:active, #resolve-btn:active {
   opacity: 0.8;
 }
 
@@ -64,6 +87,10 @@ body {
   color: #fff;
 }
 
-#draw-btn:disabled, #reset-btn:disabled {
+#nemesis-btn:disabled, #reset-btn:disabled {
   opacity: 0.5;
+}
+
+#resolve-btn[hidden], #nemesis-btn[hidden], #reset-btn[hidden] {
+  display: none;
 }
