@@ -97,7 +97,7 @@ body {
   border: 3px solid #fff;
 }
 
-/* VistaCoda: toccando una carta si vede ingrandita; toccando fuori si torna alla coda */
+/* VistaCartaCoda: toccando una carta della coda la si vede ingrandita; un tocco ovunque torna alla coda */
 #canvas:not(.resolving) .card {
   cursor: pointer;
 }

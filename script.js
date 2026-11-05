@@ -336,15 +336,13 @@ overlay.addEventListener('pointercancel', () => {
   swipeStartX = null;
 });
 
-// Tocco su una carta della coda (solo in VistaCoda) = ingrandimento; tocco fuori dalla carta = chiusura
+// Tocco su una carta della coda (solo in VistaCoda) = VistaCartaCoda; un tocco ovunque la chiude
 canvas.addEventListener('click', e => {
   if (resolving) return;
   const card = e.target.closest('.card');
   if (card) openZoom(card);
 });
-zoom.addEventListener('click', e => {
-  if (e.target === zoom) closeZoom();
-});
+zoom.addEventListener('click', closeZoom);
 
 nemesisBtn.addEventListener('click', nemesisTurn);
 resetBtn.addEventListener('click', reset);
