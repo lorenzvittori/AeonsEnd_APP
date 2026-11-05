@@ -47,7 +47,7 @@ body {
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
-/* VistaRisoluzione: coda in alto, trasparente, carta corrente opaca con bordo bianco */
+/* VistaRisoluzione: coda in alto, trasparente, carta guardata opaca con bordo bianco */
 #canvas.resolving {
   flex: 0 0 20%;
 }
@@ -56,12 +56,12 @@ body {
   opacity: 0.3;
 }
 
-#canvas.resolving .card.current {
+#canvas.resolving .card.viewed {
   opacity: 1;
 }
 
-/* Lineetta bianca sotto la carta mostrata ingrandita (si sposta con lo slide) */
-#view-marker {
+/* Lineetta bianca sotto la carta da risolvere (si sposta solo con "Risolta") */
+#resolve-marker {
   position: absolute;
   height: 3px;
   border-radius: 2px;
@@ -69,7 +69,7 @@ body {
   pointer-events: none;
 }
 
-#view-marker[hidden] {
+#resolve-marker[hidden] {
   display: none;
 }
 
@@ -93,7 +93,7 @@ body {
   color: #ff3b30;
 }
 
-#canvas .card.current {
+#canvas .card.viewed {
   border: 3px solid #fff;
 }
 

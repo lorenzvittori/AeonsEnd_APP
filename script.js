@@ -4,7 +4,7 @@ const nemesisBtn = document.getElementById('nemesis-btn');
 const resetBtn = document.getElementById('reset-btn');
 const resolveBtn = document.getElementById('resolve-btn');
 const controls = document.querySelector('.controls');
-const viewMarker = document.getElementById('view-marker');
+const resolveMarker = document.getElementById('resolve-marker');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
@@ -91,20 +91,20 @@ function layout() {
     card.style.borderRadius = (cardWidth * 0.05) + 'px';
   });
 
-  updateViewMarker();
+  updateResolveMarker();
 }
 
-// Lineetta sotto la carta mostrata ingrandita, nella fascia della coda (solo in VistaRisoluzione)
-function updateViewMarker() {
-  const card = canvas.querySelectorAll('.card')[viewIndex];
+// Lineetta sotto la carta da risolvere, nella fascia della coda (solo in VistaRisoluzione)
+function updateResolveMarker() {
+  const card = canvas.querySelectorAll('.card')[currentIndex];
   if (!resolving || !card) {
-    viewMarker.hidden = true;
+    resolveMarker.hidden = true;
     return;
   }
-  viewMarker.hidden = false;
-  viewMarker.style.left = (card.offsetLeft + card.offsetWidth * 0.2) + 'px';
-  viewMarker.style.width = (card.offsetWidth * 0.6) + 'px';
-  viewMarker.style.top = (card.offsetTop + card.offsetHeight + 4) + 'px';
+  resolveMarker.hidden = false;
+  resolveMarker.style.left = (card.offsetLeft + card.offsetWidth * 0.2) + 'px';
+  resolveMarker.style.width = (card.offsetWidth * 0.6) + 'px';
+  resolveMarker.style.top = (card.offsetTop + card.offsetHeight + 4) + 'px';
 }
 
 // Posiziona l'overlay nello spazio sotto la coda e ingrandisce la carta al centro
@@ -156,16 +156,18 @@ function reset() {
   addCard();
 }
 
-// VistaRisoluzione: segna nella coda la carta da risolvere (bordo bianco) e la porta in vista
+// VistaRisoluzione: porta in vista nella coda la carta da risolvere e le mette sotto la lineetta
 function markCurrent() {
   const cards = canvas.querySelectorAll('.card');
-  cards.forEach((card, i) => card.classList.toggle('current', i === currentIndex));
   cards[currentIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  updateResolveMarker();
 }
 
 // VistaRisoluzione: mostra ingrandita la carta viewIndex
 function showBig() {
   const cards = canvas.querySelectorAll('.card');
+  // Nella coda la carta guardata ha il bordo bianco
+  cards.forEach((card, i) => card.classList.toggle('viewed', i === viewIndex));
   const big = document.createElement('div');
   big.className = 'card';
   big.style.backgroundImage = cards[viewIndex].style.backgroundImage;
@@ -183,7 +185,7 @@ function showBig() {
 
   // Si può risolvere solo la carta da risolvere, non una che si sta solo guardando
   resolveBtn.disabled = viewIndex !== currentIndex;
-  updateViewMarker();
+  updateResolveMarker();
 }
 
 // Passa alla carta da risolvere e la mostra ingrandita
@@ -210,7 +212,7 @@ function startResolution() {
 function endResolution() {
   resolving = false;
   canvas.classList.remove('resolving');
-  canvas.querySelectorAll('.card.current').forEach(card => card.classList.remove('current'));
+  canvas.querySelectorAll('.card.viewed').forEach(card => card.classList.remove('viewed'));
   overlay.replaceChildren();
   overlay.hidden = true;
   nemesisBtn.hidden = false;
