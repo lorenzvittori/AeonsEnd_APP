@@ -7,6 +7,13 @@ const resolveBtn = document.getElementById('resolve-btn');
 const controls = document.querySelector('.controls');
 const resolveMarker = document.getElementById('resolve-marker');
 const statusEl = document.getElementById('status');
+const infoRow = document.getElementById('info-row');
+const turnInfo = document.getElementById('turn-info');
+const discardBtn = document.getElementById('discard-btn');
+const discardLayer = document.getElementById('discard');
+const discardTitle = document.getElementById('discard-title');
+const discardGrid = document.getElementById('discard-grid');
+const discardClose = document.getElementById('discard-close');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
@@ -43,8 +50,58 @@ async function loadCardPool() {
   return cards.filter(c => c.category === 'Basic Nemesis' && c.type !== 'Curse');
 }
 
-function randomCard() {
-  return cardPool[Math.floor(Math.random() * cardPool.length)];
+// Mazzo nemesi (si pesca dalla fine), pila degli scarti e numero di turni nemesi giocati
+let deck = [];
+let discard = [];
+let turn = 0;
+
+function shuffle(cards) {
+  const result = cards.slice();
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// Mazzo nuovo: tutte le carte del pool, ognuna per le sue copie (qty), mescolate
+function buildDeck() {
+  const cards = [];
+  cardPool.forEach(data => {
+    for (let i = 0; i < (data.qty || 1); i++) cards.push(data);
+  });
+  return shuffle(cards);
+}
+
+// Nuova partita: mazzo completo mescolato, scarti vuoti, turni a zero
+function newGame() {
+  deck = buildDeck();
+  discard = [];
+  turn = 0;
+  updateInfo();
+}
+
+// Pesca la carta in cima al mazzo; se il mazzo è finito si rimescolano gli scarti. Null se non c'è niente da pescare.
+function drawFromDeck() {
+  if (deck.length === 0 && discard.length > 0) {
+    deck = shuffle(discard);
+    discard = [];
+  }
+  const data = deck.pop() || null;
+  updateInfo();
+  return data;
+}
+
+// Toglie la carta dalla coda e la mette nella pila degli scarti
+function discardCard(card) {
+  discard.push(card.state.data);
+  card.remove();
+  updateInfo();
+}
+
+function updateInfo() {
+  turnInfo.textContent = 'Turno nemesi: ' + turn + ' · Mazzo: ' + deck.length;
+  discardBtn.textContent = 'Scarti (' + discard.length + ')';
 }
 
 function layout() {
@@ -248,6 +305,41 @@ function closeZoom() {
   zoomedCard = null;
 }
 
+// Mostra ingrandita una carta qualsiasi (per esempio dagli scarti), senza azioni
+function openImageZoom(imagePath) {
+  const big = document.createElement('div');
+  big.className = 'card';
+  big.style.backgroundImage = `url("${encodeURI(imagePath)}")`;
+  zoom.replaceChildren(big);
+  zoom.hidden = false;
+  layoutZoom();
+}
+
+// Pila degli scarti consultabile: miniature dalla più recente alla più vecchia; un tocco ingrandisce la carta
+function openDiscard() {
+  discardTitle.textContent = 'Scarti (' + discard.length + ')';
+  discardGrid.replaceChildren();
+  if (discard.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'discard-empty';
+    empty.textContent = 'Nessuna carta scartata';
+    discardGrid.appendChild(empty);
+  }
+  for (let i = discard.length - 1; i >= 0; i--) {
+    const item = document.createElement('div');
+    item.className = 'discard-item';
+    item.style.backgroundImage = `url("${encodeURI(discard[i].image)}")`;
+    item.addEventListener('click', () => openImageZoom(discard[i].image));
+    discardGrid.appendChild(item);
+  }
+  discardLayer.hidden = false;
+}
+
+function closeDiscard() {
+  discardLayer.hidden = true;
+  discardGrid.replaceChildren();
+}
+
 // Cambia la vita del minion mostrato; a 0 o meno esce dalla coda
 function changeHp(delta) {
   const card = zoomedCard;
@@ -264,15 +356,14 @@ function changeHp(delta) {
 function removeZoomedCard() {
   const card = zoomedCard;
   closeZoom();
-  card.remove();
+  discardCard(card);
   layout();
   centerQueue();
 }
 
-function addCard() {
+function addCard(data) {
   const card = document.createElement('div');
   card.className = 'card';
-  const data = randomCard();
   card.dataset.id = data.id;
   // Stato della carta in gioco: token rimasti e vita attuale
   card.state = { data, tokens: data.tokens, hp: data.hp };
@@ -289,10 +380,11 @@ function centerQueue() {
   canvas.scrollLeft = left;
 }
 
-// Reset: coda vuota, nessuna carta
+// Reset: nuova partita, coda vuota, nessuna carta
 function reset() {
   canvas.querySelectorAll('.card').forEach(card => card.remove());
   canvas.scrollLeft = 0;
+  newGame();
   layout();
 }
 
@@ -358,6 +450,7 @@ function startResolution() {
   nemesisBtn.hidden = true;
   resetBtn.hidden = true;
   resolveBtn.hidden = false;
+  infoRow.hidden = true;
   // La coda si restringe in alto: ricalcola la dimensione delle carte
   layout();
 
@@ -371,8 +464,14 @@ function startResolution() {
 
 // Pesca una carta casuale in fondo alla coda e la mostra come nuova (con il pulsante Ok)
 function drawNewCard() {
+  const data = drawFromDeck();
+  // Niente da pescare (mazzo e scarti vuoti): si torna alla VistaCoda
+  if (!data) {
+    endResolution();
+    return;
+  }
   const total = canvas.querySelectorAll('.card').length;
-  addCard();
+  addCard(data);
   newIndex = total;
   currentIndex = total;
   showCurrent();
@@ -390,11 +489,14 @@ function endResolution() {
   resetBtn.hidden = false;
   resolveBtn.hidden = true;
   statusEl.hidden = true;
+  infoRow.hidden = false;
   layout();
   centerQueue();
 }
 
 function nemesisTurn() {
+  turn++;
+  updateInfo();
   startResolution();
 }
 
@@ -406,7 +508,7 @@ function resolveCurrent() {
   // Carta appena pescata: un attacco si risolve subito ed esce dalla coda, le altre restano.
   // Poi ritorno alla VistaCoda.
   if (newIndex >= 0) {
-    if (data.type === 'Attack') card.remove();
+    if (data.type === 'Attack') discardCard(card);
     endResolution();
     return;
   }
@@ -420,8 +522,8 @@ function resolveCurrent() {
     // Minion: resta in coda, si va avanti
     currentIndex++;
   } else {
-    // Potere all'ultimo token o attacco: risolto, esce dalla coda (la carta dopo prende il suo posto)
-    card.remove();
+    // Potere all'ultimo token o attacco: risolto, va negli scarti (la carta dopo prende il suo posto)
+    discardCard(card);
   }
   // Con una carta in meno le altre possono ingrandirsi
   layout();
@@ -474,6 +576,9 @@ canvas.addEventListener('click', e => {
 });
 zoom.addEventListener('click', closeZoom);
 
+discardBtn.addEventListener('click', openDiscard);
+discardClose.addEventListener('click', closeDiscard);
+
 nemesisBtn.addEventListener('click', nemesisTurn);
 resetBtn.addEventListener('click', reset);
 resolveBtn.addEventListener('click', resolveCurrent);
@@ -490,6 +595,7 @@ async function init() {
   try {
     cardPool = await loadCardPool();
     if (cardPool.length === 0) throw new Error('Nessuna carta trovata in cards.json');
+    newGame();
     nemesisBtn.disabled = false;
     resetBtn.disabled = false;
   } catch (err) {

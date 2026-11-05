@@ -13,8 +13,19 @@
 <body>
   <div id="canvas"><div id="resolve-marker" hidden></div></div>
   <div id="overlay" hidden></div>
+  <div id="discard" hidden>
+    <div class="discard-header">
+      <span id="discard-title"></span>
+      <button id="discard-close">Chiudi</button>
+    </div>
+    <div id="discard-grid"></div>
+  </div>
   <div id="zoom" hidden></div>
   <div class="controls">
+    <div id="info-row">
+      <span id="turn-info"></span>
+      <button id="discard-btn">Scarti (0)</button>
+    </div>
     <div id="status" hidden></div>
     <button id="nemesis-btn">Turno Nemesi</button>
     <button id="reset-btn">Reset</button>
