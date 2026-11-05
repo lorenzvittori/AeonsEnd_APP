@@ -38,7 +38,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Token del potere: un pallino giallo (bordo giallo scuro) per token, nello spazio sopra la carta */
+/* Token del potere: un'immagine del token (Assets/power-token.webp) per ogni token, nello spazio sopra la carta */
 .pips {
   position: absolute;
   left: 0;
@@ -51,11 +51,9 @@ body {
 }
 
 .pip {
-  width: calc(var(--cw, 60px) * 0.16);
-  height: calc(var(--cw, 60px) * 0.16);
-  border: max(1.5px, calc(var(--cw, 60px) * 0.025)) solid #a16207;
-  border-radius: 50%;
-  background: #facc15;
+  width: calc(var(--cw, 60px) * 0.18);
+  height: calc(var(--cw, 60px) * 0.18);
+  background: url("Assets/power-token.webp") center / contain no-repeat;
 }
 
 /* Badge sulla carta in coda: vita dei minion (rosso) */
