@@ -2,7 +2,6 @@ const canvas = document.getElementById('canvas');
 const overlay = document.getElementById('overlay');
 const zoom = document.getElementById('zoom');
 const nemesisBtn = document.getElementById('nemesis-btn');
-const resetBtn = document.getElementById('reset-btn');
 const resolveBtn = document.getElementById('resolve-btn');
 const controls = document.querySelector('.controls');
 const resolveMarker = document.getElementById('resolve-marker');
@@ -25,8 +24,8 @@ const CARD_RATIO = 88 / 63;
 // Oltre questo numero di carte la dimensione resta fissa e si scorre di lato
 const MAX_VISIBLE = 5;
 
-// Spazio (px) lasciato ai lati della carta ingrandita per la scritta NUOVA
-const LABEL_SPACE = 30;
+// Spazio (px) lasciato ai lati della carta ingrandita per la scritta NUOVA (font-size di .new-label in style.css + margine)
+const LABEL_SPACE = 42;
 
 // Distanza minima (px) di uno slide per cambiare carta in VistaRisoluzione
 const SWIPE_MIN_DISTANCE = 50;
@@ -490,12 +489,21 @@ function showBig() {
   // Dopo la pesca (Ok / Risolto sulla carta nuova) è sempre attivo, qualunque carta si stia guardando.
   resolveBtn.disabled = !isNew && viewIndex !== currentIndex;
 
-  const parts = [];
-  if (viewIndex === currentIndex && needsResolve(current, isNew)) parts.push('DA RISOLVERE');
+  // "DA RISOLVERE" in grande e in rosso solo per la carta da risolvere; poi token o vita della carta guardata
+  statusEl.replaceChildren();
+  if (viewIndex === currentIndex && needsResolve(current, isNew)) {
+    const todo = document.createElement('span');
+    todo.className = 'todo-text';
+    todo.textContent = 'DA RISOLVERE';
+    statusEl.appendChild(todo);
+  }
   const info = cardInfo(cards[viewIndex]);
-  if (info) parts.push(info);
-  statusEl.textContent = parts.join(' · ') || ' ';
-  statusEl.classList.toggle('todo', parts[0] === 'DA RISOLVERE');
+  if (info) {
+    const infoText = document.createElement('span');
+    infoText.className = 'info-text';
+    infoText.textContent = info;
+    statusEl.appendChild(infoText);
+  }
   statusEl.hidden = false;
 
   const big = document.createElement('div');
@@ -529,7 +537,6 @@ function startResolution() {
   canvas.classList.add('resolving');
   overlay.hidden = false;
   nemesisBtn.hidden = true;
-  resetBtn.hidden = true;
   resolveBtn.hidden = false;
   infoRow.hidden = true;
   // La coda si restringe in alto: ricalcola la dimensione delle carte
@@ -567,7 +574,6 @@ function endResolution() {
   overlay.replaceChildren();
   overlay.hidden = true;
   nemesisBtn.hidden = false;
-  resetBtn.hidden = false;
   resolveBtn.hidden = true;
   statusEl.hidden = true;
   infoRow.hidden = false;
@@ -663,7 +669,6 @@ menuBtn.addEventListener('click', () => { startLayer.hidden = false; });
 startBtn.addEventListener('click', startGame);
 
 nemesisBtn.addEventListener('click', nemesisTurn);
-resetBtn.addEventListener('click', reset);
 resolveBtn.addEventListener('click', resolveCurrent);
 window.addEventListener('resize', () => {
   layout();
@@ -674,7 +679,6 @@ window.addEventListener('resize', () => {
 // Avvio: legge cards.json e deck-setup.json, mostra la pagina iniziale; la coda parte vuota
 async function init() {
   nemesisBtn.disabled = true;
-  resetBtn.disabled = true;
   startBtn.disabled = true;
   try {
     [allCards, deckSetup] = await Promise.all([loadJson('cards.json'), loadJson('deck-setup.json')]);
@@ -682,7 +686,6 @@ async function init() {
     buildStartPage();
     newGame();
     nemesisBtn.disabled = false;
-    resetBtn.disabled = false;
     startBtn.disabled = false;
   } catch (err) {
     console.error(err);

@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* Carattere con grazie, in tono con i titoli delle carte; usato per NUOVA e DA RISOLVERE */
+  --display-font: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", serif;
+}
+
 html, body {
   height: 100%;
 }
@@ -84,18 +89,29 @@ body {
   background-image: url("Assets/life-drop.webp");
 }
 
-/* Scritta sopra il pulsante in VistaRisoluzione: "DA RISOLVERE" in rosso, poi token o vita */
+/* Scritta sopra il pulsante in VistaRisoluzione: "DA RISOLVERE" grande e rossa, poi token o vita.
+   Altezza fissa, così la carta ingrandita non cambia misura da una carta all'altra. */
 #status {
   flex: 0 0 100%;
-  min-height: 1.4em;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 700;
+  min-height: 38px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
   color: #fff;
 }
 
-#status.todo {
+#status .todo-text {
+  font-family: var(--display-font);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: #ff3b30;
+}
+
+#status .info-text {
+  font-size: 17px;
+  font-weight: 700;
 }
 
 #status[hidden] {
@@ -152,7 +168,8 @@ body {
   margin-left: 6px;
   writing-mode: vertical-rl;
   text-orientation: upright;
-  font-size: 20px;
+  font-family: var(--display-font);
+  font-size: 30px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 2px;
@@ -399,7 +416,7 @@ body {
   display: none;
 }
 
-#nemesis-btn, #reset-btn, #resolve-btn {
+#nemesis-btn, #resolve-btn {
   padding: 12px 24px;
   font-size: 18px;
   border: none;
@@ -409,16 +426,11 @@ body {
   cursor: pointer;
 }
 
-#nemesis-btn:active, #reset-btn:active, #resolve-btn:active {
+#nemesis-btn:active, #resolve-btn:active {
   opacity: 0.8;
 }
 
-#reset-btn {
-  background: #333;
-  color: #fff;
-}
-
-#nemesis-btn:disabled, #reset-btn:disabled {
+#nemesis-btn:disabled {
   opacity: 0.5;
 }
 
@@ -428,6 +440,6 @@ body {
   cursor: not-allowed;
 }
 
-#resolve-btn[hidden], #nemesis-btn[hidden], #reset-btn[hidden] {
+#resolve-btn[hidden], #nemesis-btn[hidden] {
   display: none;
 }
