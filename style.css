@@ -183,7 +183,12 @@ body {
   display: none;
 }
 
-#discard-btn {
+.info-actions {
+  display: flex;
+  gap: 8px;
+}
+
+#discard-btn, #menu-btn {
   padding: 4px 12px;
   font-size: 15px;
   border: 1px solid #fff;
@@ -191,6 +196,88 @@ body {
   background: transparent;
   color: #fff;
   cursor: pointer;
+}
+
+/* Pagina iniziale: giocatori, nemesi e battaglia */
+#start {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  background: #000;
+}
+
+#start[hidden] {
+  display: none;
+}
+
+.start-box {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #fff;
+}
+
+.start-box h1 {
+  text-align: center;
+  font-size: 28px;
+}
+
+.start-label {
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choices button {
+  flex: 1 1 0;
+  min-width: 64px;
+  padding: 12px 8px;
+  font-size: 16px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.choices.wide button {
+  flex: 1 1 calc(50% - 8px);
+}
+
+.choices button.selected {
+  background: #fff;
+  color: #000;
+}
+
+#start-btn {
+  padding: 14px;
+  font-size: 20px;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+}
+
+#start-btn:disabled {
+  opacity: 0.4;
+}
+
+#start-error {
+  min-height: 1.2em;
+  color: #ff3b30;
 }
 
 /* Pila degli scarti: schermata con le miniature */

@@ -13,6 +13,25 @@
 <body>
   <div id="canvas"><div id="resolve-marker" hidden></div></div>
   <div id="overlay" hidden></div>
+  <div id="start">
+    <div class="start-box">
+      <h1>Aeon's End</h1>
+      <div class="start-group">
+        <div class="start-label">Giocatori</div>
+        <div class="choices" id="choices-players"></div>
+      </div>
+      <div class="start-group">
+        <div class="start-label">Nemesi</div>
+        <div class="choices wide" id="choices-nemesis"></div>
+      </div>
+      <div class="start-group">
+        <div class="start-label">Battaglia</div>
+        <div class="choices" id="choices-battle"></div>
+      </div>
+      <div id="start-error"></div>
+      <button id="start-btn">Inizia</button>
+    </div>
+  </div>
   <div id="discard" hidden>
     <div class="discard-header">
       <span id="discard-title"></span>
@@ -24,7 +43,10 @@
   <div class="controls">
     <div id="info-row">
       <span id="turn-info"></span>
-      <button id="discard-btn">Scarti (0)</button>
+      <span class="info-actions">
+        <button id="discard-btn">Scarti (0)</button>
+        <button id="menu-btn">Menu</button>
+      </span>
     </div>
     <div id="status" hidden></div>
     <button id="nemesis-btn">Turno Nemesi</button>

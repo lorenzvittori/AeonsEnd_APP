@@ -14,6 +14,10 @@ const discardLayer = document.getElementById('discard');
 const discardTitle = document.getElementById('discard-title');
 const discardGrid = document.getElementById('discard-grid');
 const discardClose = document.getElementById('discard-close');
+const menuBtn = document.getElementById('menu-btn');
+const startLayer = document.getElementById('start');
+const startBtn = document.getElementById('start-btn');
+const startError = document.getElementById('start-error');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
@@ -30,8 +34,13 @@ const SWIPE_MIN_DISTANCE = 50;
 // Spazio (px) tra gli elementi della VistaCartaCoda (carta, scritta, pulsanti): lo stesso di #zoom in style.css
 const ZOOM_GAP = 12;
 
-// Carte da cui si pesca, lette all'avvio da cards.json (generato da cards.csv con tools/build-cards.ps1)
-let cardPool = [];
+// Tutte le carte (cards.json, generato da cards.csv con tools/build-cards.ps1) e la tabella
+// Nemesis Deck Setup (deck-setup.json), lette all'avvio
+let allCards = [];
+let deckSetup = null;
+
+// Scelte della pagina iniziale: giocatori, nemesi e battaglia
+let settings = { players: 2, nemesis: null, battle: 1 };
 
 // Stato della VistaRisoluzione (false = VistaCoda)
 let resolving = false;
@@ -42,12 +51,10 @@ let viewIndex = 0;
 // Indice della carta appena pescata alla fine della risoluzione (-1 = nessuna)
 let newIndex = -1;
 
-// Per ora si pesca a caso solo tra le carte del mazzo base (Basic Nemesis); le altre arriveranno con la scelta della battaglia
-async function loadCardPool() {
-  const res = await fetch('cards.json', { cache: 'no-cache' });
-  if (!res.ok) throw new Error('Impossibile leggere cards.json (' + res.status + ')');
-  const cards = await res.json();
-  return cards.filter(c => c.category === 'Basic Nemesis' && c.type !== 'Curse');
+async function loadJson(path) {
+  const res = await fetch(path, { cache: 'no-cache' });
+  if (!res.ok) throw new Error('Impossibile leggere ' + path + ' (' + res.status + ')');
+  return res.json();
 }
 
 // Mazzo nemesi (si pesca dalla fine), pila degli scarti e numero di turni nemesi giocati
@@ -64,16 +71,32 @@ function shuffle(cards) {
   return result;
 }
 
-// Mazzo nuovo: tutte le carte del pool, ognuna per le sue copie (qty), mescolate
-function buildDeck() {
-  const cards = [];
-  cardPool.forEach(data => {
-    for (let i = 0; i < (data.qty || 1); i++) cards.push(data);
-  });
-  return shuffle(cards);
+// n carte a caso dalla lista
+function pickRandom(cards, n) {
+  return shuffle(cards).slice(0, n);
 }
 
-// Nuova partita: mazzo completo mescolato, scarti vuoti, turni a zero
+// Mazzo per la battaglia scelta (Nemesis Deck Setup): per ogni Tier si estraggono a caso le carte base e
+// potenziate indicate nella tabella e si aggiungono le carte specifiche del nemico di quel Tier.
+// Ogni Tier è mescolato a parte; si pesca dalla fine, quindi in cima c'è il Tier 1 e in fondo il Tier 3.
+// Restano fuori le carte senza Tier (World Devourer, Rending Claw) e la maledizione dei giocatori.
+function buildDeck() {
+  const battle = deckSetup.battles.find(b => b.battle === settings.battle);
+  const setup = battle.players[String(settings.players)];
+  const result = [];
+  [3, 2, 1].forEach(tier => {
+    const ofTier = c => c.tier === tier && c.type !== 'Curse';
+    const group = [
+      ...pickRandom(allCards.filter(c => c.category === 'Basic Nemesis' && ofTier(c)), setup.basic[tier]),
+      ...pickRandom(allCards.filter(c => c.category === 'Upgraded Basic Nemesis' && ofTier(c)), setup.upgradedBasic[tier]),
+      ...allCards.filter(c => c.category === 'Specific' && c.nemesis === settings.nemesis && ofTier(c))
+    ];
+    result.push(...shuffle(group));
+  });
+  return result;
+}
+
+// Nuova partita: mazzo nuovo per le scelte correnti, scarti vuoti, turni a zero
 function newGame() {
   deck = buildDeck();
   discard = [];
@@ -100,7 +123,7 @@ function discardCard(card) {
 }
 
 function updateInfo() {
-  turnInfo.textContent = 'Turno nemesi: ' + turn + ' · Mazzo: ' + deck.length;
+  turnInfo.textContent = 'Turno ' + turn + ' · Mazzo ' + deck.length;
   discardBtn.textContent = 'Scarti (' + discard.length + ')';
 }
 
@@ -380,12 +403,43 @@ function centerQueue() {
   canvas.scrollLeft = left;
 }
 
-// Reset: nuova partita, coda vuota, nessuna carta
+// Reset: nuova partita con le stesse scelte, coda vuota, nessuna carta
 function reset() {
   canvas.querySelectorAll('.card').forEach(card => card.remove());
   canvas.scrollLeft = 0;
   newGame();
   layout();
+}
+
+// Pagina iniziale: si scelgono giocatori, nemesi e battaglia
+function renderChoices(container, values, selected, onPick) {
+  container.replaceChildren();
+  values.forEach(value => {
+    const button = document.createElement('button');
+    button.textContent = value;
+    button.classList.toggle('selected', String(value) === String(selected));
+    button.addEventListener('click', () => {
+      onPick(value);
+      container.querySelectorAll('button').forEach(b => b.classList.toggle('selected', b === button));
+    });
+    container.appendChild(button);
+  });
+}
+
+function buildStartPage() {
+  const players = Object.keys(deckSetup.battles[0].players).map(Number);
+  const nemeses = [...new Set(allCards.filter(c => c.nemesis).map(c => c.nemesis))];
+  const battles = deckSetup.battles.map(b => b.battle);
+  settings = { players: players[0], nemesis: nemeses[0], battle: battles[0] };
+  renderChoices(document.getElementById('choices-players'), players, settings.players, v => { settings.players = Number(v); });
+  renderChoices(document.getElementById('choices-nemesis'), nemeses, settings.nemesis, v => { settings.nemesis = v; });
+  renderChoices(document.getElementById('choices-battle'), battles, settings.battle, v => { settings.battle = Number(v); });
+}
+
+// Inizia: nuova partita con le scelte fatte
+function startGame() {
+  startLayer.hidden = true;
+  reset();
 }
 
 // VistaRisoluzione: porta in vista nella coda la carta da risolvere e le mette sotto la lineetta
@@ -578,6 +632,8 @@ zoom.addEventListener('click', closeZoom);
 
 discardBtn.addEventListener('click', openDiscard);
 discardClose.addEventListener('click', closeDiscard);
+menuBtn.addEventListener('click', () => { startLayer.hidden = false; });
+startBtn.addEventListener('click', startGame);
 
 nemesisBtn.addEventListener('click', nemesisTurn);
 resetBtn.addEventListener('click', reset);
@@ -588,19 +644,22 @@ window.addEventListener('resize', () => {
   layoutZoom();
 });
 
-// Avvio: legge cards.json; la coda parte vuota
+// Avvio: legge cards.json e deck-setup.json, mostra la pagina iniziale; la coda parte vuota
 async function init() {
   nemesisBtn.disabled = true;
   resetBtn.disabled = true;
+  startBtn.disabled = true;
   try {
-    cardPool = await loadCardPool();
-    if (cardPool.length === 0) throw new Error('Nessuna carta trovata in cards.json');
+    [allCards, deckSetup] = await Promise.all([loadJson('cards.json'), loadJson('deck-setup.json')]);
+    if (allCards.length === 0) throw new Error('Nessuna carta trovata in cards.json');
+    buildStartPage();
     newGame();
     nemesisBtn.disabled = false;
     resetBtn.disabled = false;
+    startBtn.disabled = false;
   } catch (err) {
     console.error(err);
-    nemesisBtn.textContent = 'Errore: immagini non trovate';
+    startError.textContent = 'Errore: carte non trovate';
   }
 }
 
