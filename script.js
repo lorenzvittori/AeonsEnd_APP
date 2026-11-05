@@ -119,8 +119,13 @@ function addCard() {
   card.style.backgroundImage = `url("${randomImage()}")`;
   canvas.appendChild(card);
   layout();
-  // Porta in vista la carta appena aggiunta
-  canvas.scrollTo({ left: canvas.scrollWidth, behavior: 'smooth' });
+  centerQueue();
+}
+
+// Se la coda esce dallo schermo, mostra il suo centro (carte tagliate in modo uguale ai lati)
+function centerQueue() {
+  const left = Math.max(0, (canvas.scrollWidth - canvas.clientWidth) / 2);
+  canvas.scrollLeft = left;
 }
 
 function reset() {
@@ -176,6 +181,7 @@ function endResolution() {
   resetBtn.hidden = false;
   resolveBtn.hidden = true;
   layout();
+  centerQueue();
 }
 
 function nemesisTurn() {
