@@ -138,21 +138,14 @@ body {
   --glow-new: 0 0 calc(var(--cw, 60px) * 0.1) calc(var(--cw, 60px) * 0.02) rgba(255, 196, 60, 0.85);
 }
 
-/* Etichetta NEW sulla carta appena pescata (in coda e ingrandita) */
+/* Etichetta NEW sulla carta appena pescata (in coda e ingrandita): nastro rosso (Assets/new-tag.webp, quasi quadrato) */
 .new-tag {
   position: absolute;
-  top: 3%;
-  right: 3%;
-  padding: calc(var(--cw, 60px) * 0.015) calc(var(--cw, 60px) * 0.05);
-  border-radius: calc(var(--cw, 60px) * 0.04);
-  background: linear-gradient(#ffe08a, #e0a020);
-  color: #3b2300;
-  font-family: var(--display-font);
-  font-size: max(8px, calc(var(--cw, 60px) * 0.11));
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  line-height: 1.1;
-  box-shadow: 0 0 calc(var(--cw, 60px) * 0.05) rgba(0, 0, 0, 0.6);
+  top: -4%;
+  right: -5%;
+  width: calc(var(--cw, 60px) * 0.28);
+  height: calc(var(--cw, 60px) * 0.28 * 0.988);
+  background: url("Assets/new-tag.webp") center / contain no-repeat;
   pointer-events: none;
 }
 
@@ -455,12 +448,22 @@ body {
   display: none;
 }
 
-#nemesis-btn, #resolve-btn {
+#nemesis-btn{
   padding: 12px 24px;
   font-size: 18px;
   border: none;
   border-radius: 8px;
-  background: #fff;
+  background: #e67979;
+  color: #000;
+  cursor: pointer;
+}
+
+#resolve-btn {
+  padding: 12px 24px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  background: hsl(0, 0%, 100%);
   color: #000;
   cursor: pointer;
 }
