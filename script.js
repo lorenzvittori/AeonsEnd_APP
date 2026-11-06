@@ -596,7 +596,7 @@ function openStart() {
 // Inizia: nuova partita con le scelte fatte (la partita salvata viene sostituita)
 function startGame() {
   if (!battleOf(settings.nemesis)) {
-    startError.textContent = 'Scegli un boss';
+    startError.textContent = 'Scegli una nemesis';
     return;
   }
   startError.textContent = '';
