@@ -4,8 +4,6 @@ const zoom = document.getElementById('zoom');
 const nemesisBtn = document.getElementById('nemesis-btn');
 const resolveBtn = document.getElementById('resolve-btn');
 const controls = document.querySelector('.controls');
-const resolveMarker = document.getElementById('resolve-marker');
-const statusEl = document.getElementById('status');
 const infoRow = document.getElementById('info-row');
 const turnInfo = document.getElementById('turn-info');
 const discardBtn = document.getElementById('discard-btn');
@@ -16,7 +14,10 @@ const discardClose = document.getElementById('discard-close');
 const menuBtn = document.getElementById('menu-btn');
 const startLayer = document.getElementById('start');
 const startBtn = document.getElementById('start-btn');
+const resumeBtn = document.getElementById('resume-btn');
 const startError = document.getElementById('start-error');
+const undoBtn = document.getElementById('undo-btn');
+const phaseLabel = document.getElementById('phase-label');
 
 // Rapporto carta standard: 63 x 88 mm
 const CARD_RATIO = 88 / 63;
@@ -24,39 +25,52 @@ const CARD_RATIO = 88 / 63;
 // Oltre questo numero di carte la dimensione resta fissa e si scorre di lato
 const MAX_VISIBLE = 5;
 
-// Spazio (px) lasciato ai lati della carta ingrandita per la scritta NUOVA (font-size di .new-label in style.css + margine)
-const LABEL_SPACE = 42;
-
 // Distanza minima (px) di uno slide per cambiare carta in VistaRisoluzione
 const SWIPE_MIN_DISTANCE = 50;
 
-// Spazio sopra ogni carta della coda per token (potere) e gocce di vita (minion): un'unica fila alta al massimo
-// PIPS_ROW_RATIO x larghezza carta, più PIPS_SPACE_EXTRA px (devono corrispondere a .pips / .pip / .drop in style.css)
+// Spazio sopra ogni carta (in coda e ingrandita) per token (potere) e gocce di vita (minion): un'unica fila alta al
+// massimo PIPS_ROW_RATIO x larghezza carta, più PIPS_SPACE_EXTRA px (devono corrispondere a .pips / .pip / .drop in style.css)
 const PIPS_ROW_RATIO = 0.13;
 const PIPS_SPACE_EXTRA = 6;
 
 // Valore in punti vita della goccia grande (la piccola vale 1)
 const DROP_BIG_VALUE = 5;
 
-// Spazio (px) tra gli elementi della VistaCartaCoda (carta, scritta, pulsanti): lo stesso di #zoom in style.css
+// Spazio (px) tra gli elementi della VistaCartaCoda (carta, pulsanti): lo stesso di #zoom in style.css
 const ZOOM_GAP = 12;
+
+// Partita salvata nel browser (localStorage) e numero massimo di passi di undo conservati
+const SAVE_KEY = 'aeonsend-save-v1';
+const UNDO_LIMIT = 300;
 
 // Tutte le carte (cards.json, generato da cards.csv con tools/build-cards.ps1) e la tabella
 // Nemesis Deck Setup (deck-setup.json), lette all'avvio
 let allCards = [];
+let cardsById = new Map();
 let deckSetup = null;
 
 // Scelte della pagina iniziale: giocatori, nemesi e battaglia
 let settings = { players: 2, nemesis: null, battle: 1 };
+let startOptions = null;
 
 // Stato della VistaRisoluzione (false = VistaCoda)
 let resolving = false;
-// Carta da risolvere (bordo bianco): cambia solo con "Risolta"
+// Carta da risolvere (glow rosso): cambia solo con il pulsante principale
 let currentIndex = 0;
-// Carta mostrata ingrandita: cambia anche con lo slide, senza risolvere nulla
+// Carta mostrata ingrandita (glow bianco): cambia anche con lo slide o toccando la fascia, senza risolvere nulla
 let viewIndex = 0;
 // Indice della carta appena pescata alla fine della risoluzione (-1 = nessuna)
 let newIndex = -1;
+// La prossima volta che si mostra la carta appena pescata, entra girandosi
+let flipPending = false;
+
+// Mazzo nemesi (si pesca dalla fine), pila degli scarti e numero di turni nemesi giocati
+let deck = [];
+let discard = [];
+let turn = 0;
+
+// Undo: uno stato della partita salvato prima di ogni azione
+let undoStack = [];
 
 async function loadJson(path) {
   const res = await fetch(path, { cache: 'no-cache' });
@@ -64,10 +78,9 @@ async function loadJson(path) {
   return res.json();
 }
 
-// Mazzo nemesi (si pesca dalla fine), pila degli scarti e numero di turni nemesi giocati
-let deck = [];
-let discard = [];
-let turn = 0;
+function queueCards() {
+  return Array.from(canvas.querySelectorAll('.card'));
+}
 
 function shuffle(cards) {
   const result = cards.slice();
@@ -135,7 +148,7 @@ function updateInfo() {
 }
 
 function layout() {
-  const cards = canvas.querySelectorAll('.card');
+  const cards = queueCards();
   const n = cards.length;
 
   if (n === 0) {
@@ -159,8 +172,7 @@ function layout() {
   const availW = W - 2 * margin - (fit - 1) * gap;
   const widthFromWidth = availW / fit;
 
-  // Larghezza massima se limitati dallo spazio verticale: sopra la carta si lascia lo spazio per i pallini dei token
-  // (altezza carta + PIPS_SPACE_RATIO * larghezza + PIPS_SPACE_EXTRA deve stare in availH)
+  // Larghezza massima se limitati dallo spazio verticale: sopra la carta si lascia lo spazio per token e gocce
   const availH = H - 2 * margin;
   const widthFromHeight = Math.max(0, availH - PIPS_SPACE_EXTRA) / (CARD_RATIO + PIPS_ROW_RATIO);
 
@@ -178,20 +190,16 @@ function layout() {
     card.style.width = cardWidth + 'px';
     card.style.height = cardHeight + 'px';
     card.style.borderRadius = (cardWidth * 0.05) + 'px';
-    // Larghezza della carta: il badge di token/vita si ridimensiona con lei
+    // Larghezza della carta: token, gocce, NEW e glow si ridimensionano con lei
     card.style.setProperty('--cw', cardWidth + 'px');
   });
-
-  updateResolveMarker();
 }
 
-// Badge sulla carta in coda: token rimasti (potere) o vita (minion)
 // Elementi da mostrare sopra la carta, come classi CSS:
 // - potere: un token per ogni token rimasto;
 // - minion: la vita attuale in gocce, quante più possibile da 5 (più grandi) e il resto da 1.
-//   La vita persa non si rappresenta: con il danno le gocce si ricalcolano (es. 10 = 5+5, dopo -1 diventa 9 = 5+1+1+1+1).
-function pipClasses(card) {
-  const { data, tokens, hp } = card.state;
+function pipClasses(state) {
+  const { data, tokens, hp } = state;
   if (data.type === 'Power') return Array(Math.max(0, tokens)).fill('pip');
   if (data.type === 'Minion' && hp !== null && hp !== undefined && hp > 0) {
     return [...Array(Math.floor(hp / DROP_BIG_VALUE)).fill('drop5'), ...Array(hp % DROP_BIG_VALUE).fill('drop')];
@@ -199,42 +207,35 @@ function pipClasses(card) {
   return [];
 }
 
-function updateBadge(card) {
-  const classes = pipClasses(card);
-
-  let pips = card.querySelector('.pips');
+// Aggiorna quello che sta sopra/sopra la carta (in coda o ingrandita): token o gocce, etichetta NEW e glow dorato
+function decorate(el, state) {
+  const classes = pipClasses(state);
+  let pips = el.querySelector('.pips');
   if (classes.length === 0) {
     if (pips) pips.remove();
-    return;
+  } else {
+    if (!pips) {
+      pips = document.createElement('span');
+      pips.className = 'pips';
+      el.appendChild(pips);
+    }
+    pips.replaceChildren(...classes.map(cls => {
+      const item = document.createElement('span');
+      item.className = cls;
+      return item;
+    }));
   }
-  if (!pips) {
-    pips = document.createElement('span');
-    pips.className = 'pips';
-    card.appendChild(pips);
+
+  let tag = el.querySelector('.new-tag');
+  if (state.isNew && !tag) {
+    tag = document.createElement('span');
+    tag.className = 'new-tag';
+    tag.textContent = 'NEW';
+    el.appendChild(tag);
+  } else if (!state.isNew && tag) {
+    tag.remove();
   }
-  pips.replaceChildren(...classes.map(cls => {
-    const item = document.createElement('span');
-    item.className = cls;
-    return item;
-  }));
-}
-
-// Informazione sulla carta: token rimasti o vita
-function cardInfo(card) {
-  const { data, tokens, hp } = card.state;
-  if (data.type === 'Power') return 'Token: ' + tokens;
-  if (data.type === 'Minion' && hp !== null) return 'Vita: ' + hp;
-  return '';
-}
-
-// La carta va risolta adesso? Minion e attacchi sempre, poteri solo all'ultimo token.
-// La carta appena pescata: solo gli attacchi (minion e poteri entrano in gioco e basta).
-function needsResolve(card, isNew) {
-  const { data, tokens } = card.state;
-  if (data.type === 'Attack') return true;
-  if (isNew) return false;
-  if (data.type === 'Minion') return true;
-  return data.type === 'Power' && tokens <= 1;
+  el.classList.toggle('is-new', !!state.isNew);
 }
 
 // Testo del pulsante per la carta da risolvere. Sull'ultima carta della coda si pesca la nuova.
@@ -246,17 +247,24 @@ function actionText(card, isNew, isLast) {
   return isLast ? 'Risolto e Pesca' : 'Risolto';
 }
 
-// Lineetta sotto la carta da risolvere, nella fascia della coda (solo in VistaRisoluzione)
-function updateResolveMarker() {
-  const card = canvas.querySelectorAll('.card')[currentIndex];
-  if (!resolving || !card) {
-    resolveMarker.hidden = true;
-    return;
-  }
-  resolveMarker.hidden = false;
-  resolveMarker.style.left = (card.offsetLeft + card.offsetWidth * 0.2) + 'px';
-  resolveMarker.style.width = (card.offsetWidth * 0.6) + 'px';
-  resolveMarker.style.top = (card.offsetTop + card.offsetHeight + 4) + 'px';
+// Copia ingrandita di una carta della coda, con token/gocce e NEW
+function makeBig(src) {
+  const big = document.createElement('div');
+  big.className = 'card';
+  big.style.backgroundImage = src.style.backgroundImage;
+  if (src.state) decorate(big, src.state);
+  return big;
+}
+
+// Dimensiona una carta ingrandita nello spazio W x H, lasciando sopra lo spazio per token e gocce
+function sizeBig(big, W, H) {
+  const margin = Math.min(W, H) * 0.05;
+  const width = Math.max(0, Math.min(W - 2 * margin, (H - 2 * margin - PIPS_SPACE_EXTRA) / (CARD_RATIO + PIPS_ROW_RATIO)));
+  big.style.width = width + 'px';
+  big.style.height = (width * CARD_RATIO) + 'px';
+  big.style.borderRadius = (width * 0.05) + 'px';
+  big.style.marginTop = (width * PIPS_ROW_RATIO + PIPS_SPACE_EXTRA) + 'px';
+  big.style.setProperty('--cw', width + 'px');
 }
 
 // Posiziona l'overlay nello spazio sotto la coda e ingrandisce la carta al centro
@@ -268,40 +276,24 @@ function layoutOverlay() {
     left: queueRect.left,
     top: queueRect.bottom,
     width: queueRect.width,
-    height: controls.getBoundingClientRect().top - queueRect.bottom
+    height: Math.max(0, controls.getBoundingClientRect().top - queueRect.bottom)
   };
   overlay.style.left = rect.left + 'px';
   overlay.style.top = rect.top + 'px';
   overlay.style.width = rect.width + 'px';
-  overlay.style.height = Math.max(0, rect.height) + 'px';
+  overlay.style.height = rect.height + 'px';
 
   const big = overlay.firstElementChild;
-  if (!big) return;
-
-  // Lo spazio a destra e a sinistra è riservato alla scritta NUOVA
-  const margin = Math.min(rect.width, rect.height) * 0.05;
-  const side = margin + LABEL_SPACE;
-  const width = Math.max(0, Math.min(rect.width - 2 * side, (rect.height - 2 * margin) / CARD_RATIO));
-  big.style.width = width + 'px';
-  big.style.height = (width * CARD_RATIO) + 'px';
-  big.style.borderRadius = (width * 0.05) + 'px';
+  if (big) sizeBig(big, rect.width, rect.height);
 }
 
-// VistaCoda: ingrandisce al centro dello schermo la carta toccata
+// VistaCartaCoda: ingrandisce al centro dello schermo la carta toccata (sotto, gli eventuali pulsanti)
 function layoutZoom() {
   const big = zoom.firstElementChild;
   if (!big) return;
-
-  // Sotto la carta ci sono la scritta con token/vita e i pulsanti: si toglie il loro spazio
   const below = Array.from(zoom.children).slice(1);
   const extra = below.reduce((sum, el) => sum + el.offsetHeight, 0) + below.length * ZOOM_GAP;
-  const W = zoom.clientWidth;
-  const H = zoom.clientHeight - extra;
-  const margin = Math.min(W, H) * 0.05;
-  const width = Math.max(0, Math.min(W - 2 * margin, (H - 2 * margin) / CARD_RATIO));
-  big.style.width = width + 'px';
-  big.style.height = (width * CARD_RATIO) + 'px';
-  big.style.borderRadius = (width * 0.05) + 'px';
+  sizeBig(big, zoom.clientWidth, zoom.clientHeight - extra);
 }
 
 // Carta della coda mostrata in VistaCartaCoda
@@ -310,14 +302,7 @@ let zoomedCard = null;
 function openZoom(card) {
   zoomedCard = card;
   const { data } = card.state;
-
-  const big = document.createElement('div');
-  big.className = 'card';
-  big.style.backgroundImage = card.style.backgroundImage;
-
-  const info = document.createElement('div');
-  info.className = 'zoom-info';
-  info.textContent = cardInfo(card);
+  const big = makeBig(card);
 
   // Azioni in VistaCoda: danno o cura ai minion e uscita dalla coda; i poteri si tolgono quando si paga il costo
   const actions = document.createElement('div');
@@ -326,7 +311,7 @@ function openZoom(card) {
     const button = document.createElement('button');
     button.textContent = text;
     if (extraClass) button.className = extraClass;
-    button.addEventListener('click', handler);
+    button.addEventListener('click', () => act(handler));
     actions.appendChild(button);
   };
   if (data.type === 'Minion') {
@@ -342,7 +327,7 @@ function openZoom(card) {
   // Toccare un pulsante non chiude la VistaCartaCoda
   actions.addEventListener('click', e => e.stopPropagation());
 
-  zoom.replaceChildren(big, info);
+  zoom.replaceChildren(big);
   if (actions.children.length > 0) zoom.appendChild(actions);
   zoom.hidden = false;
   layoutZoom();
@@ -397,8 +382,8 @@ function changeHp(delta) {
     removeZoomedCard();
     return;
   }
-  updateBadge(card);
-  zoom.querySelector('.zoom-info').textContent = cardInfo(card);
+  decorate(card, card.state);
+  decorate(zoom.firstElementChild, card.state);
 }
 
 // Toglie dalla coda la carta mostrata e torna alla VistaCoda
@@ -410,17 +395,23 @@ function removeZoomedCard() {
   centerQueue();
 }
 
-function addCard(data) {
+function createCard(data) {
   const card = document.createElement('div');
   card.className = 'card';
   card.dataset.id = data.id;
-  // Stato della carta in gioco: token rimasti e vita attuale
-  card.state = { data, tokens: data.tokens, hp: data.hp };
+  // Stato della carta in gioco: token rimasti, vita attuale, appena pescata
+  card.state = { data, tokens: data.tokens, hp: data.hp, isNew: false };
   card.style.backgroundImage = `url("${encodeURI(data.image)}")`;
+  decorate(card, card.state);
+  return card;
+}
+
+function addCard(data) {
+  const card = createCard(data);
   canvas.appendChild(card);
-  updateBadge(card);
   layout();
   centerQueue();
+  return card;
 }
 
 // Se la coda esce dallo schermo, mostra il suo centro (carte tagliate in modo uguale ai lati)
@@ -429,10 +420,13 @@ function centerQueue() {
   canvas.scrollLeft = left;
 }
 
-// Reset: nuova partita con le stesse scelte, coda vuota, nessuna carta
+// Nuova partita con le scelte correnti: coda vuota, nessuna carta
 function reset() {
-  canvas.querySelectorAll('.card').forEach(card => card.remove());
+  closeZoom();
+  queueCards().forEach(card => card.remove());
   canvas.scrollLeft = 0;
+  newIndex = -1;
+  setResolvingUI(false);
   newGame();
   layout();
 }
@@ -452,75 +446,194 @@ function renderChoices(container, values, selected, onPick) {
   });
 }
 
-function buildStartPage() {
-  const players = Object.keys(deckSetup.battles[0].players).map(Number);
-  const nemeses = [...new Set(allCards.filter(c => c.nemesis).map(c => c.nemesis))];
-  const battles = deckSetup.battles.map(b => b.battle);
-  settings = { players: players[0], nemesis: nemeses[0], battle: battles[0] };
+function renderStartChoices() {
+  const { players, nemeses, battles } = startOptions;
   renderChoices(document.getElementById('choices-players'), players, settings.players, v => { settings.players = Number(v); });
   renderChoices(document.getElementById('choices-nemesis'), nemeses, settings.nemesis, v => { settings.nemesis = v; });
   renderChoices(document.getElementById('choices-battle'), battles, settings.battle, v => { settings.battle = Number(v); });
 }
 
-// Inizia: nuova partita con le scelte fatte
+function buildStartPage() {
+  startOptions = {
+    players: Object.keys(deckSetup.battles[0].players).map(Number),
+    nemeses: [...new Set(allCards.filter(c => c.nemesis).map(c => c.nemesis))],
+    battles: deckSetup.battles.map(b => b.battle)
+  };
+  settings = { players: startOptions.players[0], nemesis: startOptions.nemeses[0], battle: startOptions.battles[0] };
+  renderStartChoices();
+}
+
+function openStart() {
+  resumeBtn.hidden = !readSave();
+  startLayer.hidden = false;
+}
+
+// Inizia: nuova partita con le scelte fatte (la partita salvata viene sostituita)
 function startGame() {
   startLayer.hidden = true;
+  undoStack = [];
   reset();
+  updateUndoBtn();
+  save();
 }
 
-// VistaRisoluzione: porta in vista nella coda la carta da risolvere e le mette sotto la lineetta
+// Riprendi partita: si ricarica lo stato salvato nel browser, compreso l'undo
+function resumeGame() {
+  const saved = readSave();
+  if (!saved) return;
+  try {
+    settings = saved.settings;
+    restore(saved.state);
+    undoStack = Array.isArray(saved.undo) ? saved.undo : [];
+    renderStartChoices();
+    startLayer.hidden = true;
+    updateUndoBtn();
+  } catch (err) {
+    console.error(err);
+    localStorage.removeItem(SAVE_KEY);
+    resumeBtn.hidden = true;
+    startError.textContent = 'La partita salvata non si può riprendere';
+  }
+}
+
+// --- Stato della partita: salvataggio, undo, ripristino -------------------------------------------------------
+
+// Fotografia della partita (solo dati semplici, così si può salvare nel browser)
+function snapshot() {
+  return {
+    turn,
+    deck: deck.map(c => c.id),
+    discard: discard.map(c => c.id),
+    queue: queueCards().map(c => ({ id: c.state.data.id, tokens: c.state.tokens, hp: c.state.hp, isNew: !!c.state.isNew })),
+    resolving,
+    currentIndex,
+    newIndex
+  };
+}
+
+// Rimette la partita come nella fotografia (senza animazioni)
+function restore(s) {
+  const get = id => {
+    const card = cardsById.get(id);
+    if (!card) throw new Error('Carta sconosciuta: ' + id);
+    return card;
+  };
+  // Prima si leggono tutti i dati: se qualcosa non va, la partita in corso resta com'è
+  const newDeck = s.deck.map(get);
+  const newDiscard = s.discard.map(get);
+  const newQueue = s.queue.map(q => ({ ...q, data: get(q.id) }));
+
+  closeZoom();
+  closeDiscard();
+  flipPending = false;
+  queueCards().forEach(card => card.remove());
+  deck = newDeck;
+  discard = newDiscard;
+  turn = s.turn;
+  newQueue.forEach(q => {
+    const card = createCard(q.data);
+    Object.assign(card.state, { tokens: q.tokens, hp: q.hp, isNew: q.isNew });
+    decorate(card, card.state);
+    canvas.appendChild(card);
+  });
+  updateInfo();
+
+  if (s.resolving && newQueue.length > 0) {
+    setResolvingUI(true);
+    currentIndex = Math.min(s.currentIndex, newQueue.length - 1);
+    newIndex = s.newIndex;
+    layout();
+    showCurrent();
+  } else {
+    newIndex = -1;
+    setResolvingUI(false);
+    layout();
+    centerQueue();
+  }
+}
+
+function save() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ settings, state: snapshot(), undo: undoStack }));
+  } catch (err) {
+    console.warn('Salvataggio non riuscito', err);
+  }
+}
+
+function readSave() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (saved && saved.state && saved.settings) return saved;
+  } catch (err) {
+    console.warn('Salvataggio illeggibile', err);
+  }
+  return null;
+}
+
+function updateUndoBtn() {
+  undoBtn.disabled = undoStack.length === 0;
+}
+
+// Ogni azione che cambia la partita: prima si salva lo stato per l'undo, poi si fa l'azione, poi si salva la partita
+function act(action) {
+  undoStack.push(snapshot());
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  action();
+  updateUndoBtn();
+  save();
+}
+
+// Undo: torna allo stato prima dell'ultima azione (si può ripetere fino all'inizio della partita)
+function undo() {
+  const previous = undoStack.pop();
+  if (!previous) return;
+  restore(previous);
+  updateUndoBtn();
+  save();
+}
+
+// --- VistaRisoluzione -------------------------------------------------------------------------------------------
+
+// Mostra o nasconde la parte di interfaccia della VistaRisoluzione
+function setResolvingUI(on) {
+  resolving = on;
+  canvas.classList.toggle('resolving', on);
+  overlay.hidden = !on;
+  if (!on) overlay.replaceChildren();
+  nemesisBtn.hidden = on;
+  resolveBtn.hidden = !on;
+  infoRow.hidden = on;
+  phaseLabel.classList.toggle('invisible', on);
+  if (!on) queueCards().forEach(card => card.classList.remove('viewed', 'to-resolve'));
+}
+
+// Porta in vista nella coda la carta da risolvere
 function markCurrent() {
-  const cards = canvas.querySelectorAll('.card');
-  cards[currentIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  updateResolveMarker();
+  const card = queueCards()[currentIndex];
+  if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
 
-// VistaRisoluzione: mostra ingrandita la carta viewIndex
+// Mostra ingrandita la carta viewIndex; nella fascia: glow bianco sulla carta guardata, rosso su quella da risolvere
 function showBig() {
-  const cards = canvas.querySelectorAll('.card');
-  // Nella coda la carta guardata ha il bordo bianco
-  cards.forEach((card, i) => card.classList.toggle('viewed', i === viewIndex));
+  const cards = queueCards();
+  const isNewStep = newIndex >= 0;
+  cards.forEach((card, i) => {
+    card.classList.toggle('viewed', i === viewIndex);
+    card.classList.toggle('to-resolve', !isNewStep && i === currentIndex);
+  });
 
-  // Pulsante e scritta di stato: il pulsante agisce sulla carta da risolvere, la scritta descrive quella guardata
-  const isNew = newIndex >= 0;
-  const current = cards[currentIndex];
-  resolveBtn.textContent = actionText(current, isNew, currentIndex === cards.length - 1);
   // Il pulsante vale solo per la carta da risolvere, non per una che si sta solo guardando.
   // Dopo la pesca (Ok / Risolto sulla carta nuova) è sempre attivo, qualunque carta si stia guardando.
-  resolveBtn.disabled = !isNew && viewIndex !== currentIndex;
+  resolveBtn.textContent = actionText(cards[currentIndex], isNewStep, currentIndex === cards.length - 1);
+  resolveBtn.disabled = !isNewStep && viewIndex !== currentIndex;
 
-  // "DA RISOLVERE" in grande e in rosso solo per la carta da risolvere; poi token o vita della carta guardata
-  statusEl.replaceChildren();
-  if (viewIndex === currentIndex && needsResolve(current, isNew)) {
-    const todo = document.createElement('span');
-    todo.className = 'todo-text';
-    todo.textContent = 'DA RISOLVERE';
-    statusEl.appendChild(todo);
+  const big = makeBig(cards[viewIndex]);
+  if (flipPending && viewIndex === newIndex) {
+    big.classList.add('flip-in');
+    flipPending = false;
   }
-  const info = cardInfo(cards[viewIndex]);
-  if (info) {
-    const infoText = document.createElement('span');
-    infoText.className = 'info-text';
-    infoText.textContent = info;
-    statusEl.appendChild(infoText);
-  }
-  statusEl.hidden = false;
-
-  const big = document.createElement('div');
-  big.className = 'card';
-  big.style.backgroundImage = cards[viewIndex].style.backgroundImage;
-
-  // La carta appena pescata a fine risoluzione è segnata come NUOVA
-  if (viewIndex === newIndex) {
-    const label = document.createElement('span');
-    label.className = 'new-label';
-    label.textContent = 'NUOVA';
-    big.appendChild(label);
-  }
-
   overlay.replaceChildren(big);
   layoutOverlay();
-  updateResolveMarker();
 }
 
 // Passa alla carta da risolvere e la mostra ingrandita
@@ -531,26 +644,28 @@ function showCurrent() {
 }
 
 function startResolution() {
-  resolving = true;
+  // Un nuovo turno: la carta pescata nel turno precedente non è più "NEW"
+  queueCards().forEach(card => {
+    if (card.state.isNew) {
+      card.state.isNew = false;
+      decorate(card, card.state);
+    }
+  });
   currentIndex = 0;
   newIndex = -1;
-  canvas.classList.add('resolving');
-  overlay.hidden = false;
-  nemesisBtn.hidden = true;
-  resolveBtn.hidden = false;
-  infoRow.hidden = true;
+  setResolvingUI(true);
   // La coda si restringe in alto: ricalcola la dimensione delle carte
   layout();
 
   // Coda vuota: non c'è niente da risolvere, si pesca direttamente la carta nuova
-  if (canvas.querySelectorAll('.card').length === 0) {
+  if (queueCards().length === 0) {
     drawNewCard();
   } else {
     showCurrent();
   }
 }
 
-// Pesca una carta casuale in fondo alla coda e la mostra come nuova (con il pulsante Ok)
+// Pesca una carta in fondo alla coda e la mostra come nuova (NEW, glow dorato, entra girandosi)
 function drawNewCard() {
   const data = drawFromDeck();
   // Niente da pescare (mazzo e scarti vuoti): si torna alla VistaCoda
@@ -558,25 +673,20 @@ function drawNewCard() {
     endResolution();
     return;
   }
-  const total = canvas.querySelectorAll('.card').length;
-  addCard(data);
+  const total = queueCards().length;
+  const card = addCard(data);
+  card.state.isNew = true;
+  decorate(card, card.state);
   newIndex = total;
   currentIndex = total;
+  flipPending = true;
   showCurrent();
 }
 
 // Ritorno alla VistaCoda
 function endResolution() {
-  resolving = false;
   newIndex = -1;
-  canvas.classList.remove('resolving');
-  canvas.querySelectorAll('.card.viewed').forEach(card => card.classList.remove('viewed'));
-  overlay.replaceChildren();
-  overlay.hidden = true;
-  nemesisBtn.hidden = false;
-  resolveBtn.hidden = true;
-  statusEl.hidden = true;
-  infoRow.hidden = false;
+  setResolvingUI(false);
   layout();
   centerQueue();
 }
@@ -589,7 +699,7 @@ function nemesisTurn() {
 
 // Pulsante principale della VistaRisoluzione: agisce sulla carta da risolvere in base al suo tipo
 function resolveCurrent() {
-  const card = canvas.querySelectorAll('.card')[currentIndex];
+  const card = queueCards()[currentIndex];
   const { data, tokens } = card.state;
 
   // Carta appena pescata: un attacco si risolve subito ed esce dalla coda, le altre restano.
@@ -603,7 +713,7 @@ function resolveCurrent() {
   if (data.type === 'Power' && tokens > 1) {
     // Potere: si toglie un token e si va avanti
     card.state.tokens--;
-    updateBadge(card);
+    decorate(card, card.state);
     currentIndex++;
   } else if (data.type === 'Minion') {
     // Minion: resta in coda, si va avanti
@@ -616,7 +726,7 @@ function resolveCurrent() {
   layout();
 
   // Finita la coda: si pesca la nuova carta e la si mostra
-  if (currentIndex >= canvas.querySelectorAll('.card').length) {
+  if (currentIndex >= queueCards().length) {
     drawNewCard();
   } else {
     showCurrent();
@@ -626,11 +736,11 @@ function resolveCurrent() {
 // Sposta solo la carta mostrata, restando dentro la coda; la carta da risolvere non cambia
 function moveView(step) {
   const next = viewIndex + step;
-  if (next < 0 || next >= canvas.querySelectorAll('.card').length) return;
+  if (next < 0 || next >= queueCards().length) return;
   viewIndex = next;
   showBig();
   // Tiene in vista nella coda la carta guardata
-  canvas.querySelectorAll('.card')[viewIndex].scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+  queueCards()[viewIndex].scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
 }
 
 // Slide in VistaRisoluzione: verso sinistra = carta successiva, verso destra = precedente
@@ -661,7 +771,7 @@ canvas.addEventListener('click', e => {
   const card = e.target.closest('.card');
   if (!card) return;
   if (resolving) {
-    viewIndex = Array.from(canvas.querySelectorAll('.card')).indexOf(card);
+    viewIndex = queueCards().indexOf(card);
     showBig();
     return;
   }
@@ -671,28 +781,33 @@ zoom.addEventListener('click', closeZoom);
 
 discardBtn.addEventListener('click', openDiscard);
 discardClose.addEventListener('click', closeDiscard);
-menuBtn.addEventListener('click', () => { startLayer.hidden = false; });
+menuBtn.addEventListener('click', openStart);
 startBtn.addEventListener('click', startGame);
+resumeBtn.addEventListener('click', resumeGame);
+undoBtn.addEventListener('click', undo);
 
-nemesisBtn.addEventListener('click', nemesisTurn);
-resolveBtn.addEventListener('click', resolveCurrent);
+nemesisBtn.addEventListener('click', () => act(nemesisTurn));
+resolveBtn.addEventListener('click', () => act(resolveCurrent));
 window.addEventListener('resize', () => {
   layout();
   layoutOverlay();
   layoutZoom();
 });
 
-// Avvio: legge cards.json e deck-setup.json, mostra la pagina iniziale; la coda parte vuota
+// Avvio: legge cards.json e deck-setup.json, mostra la pagina iniziale (con "Riprendi partita" se ce n'è una salvata)
 async function init() {
   nemesisBtn.disabled = true;
   startBtn.disabled = true;
   try {
     [allCards, deckSetup] = await Promise.all([loadJson('cards.json'), loadJson('deck-setup.json')]);
     if (allCards.length === 0) throw new Error('Nessuna carta trovata in cards.json');
+    cardsById = new Map(allCards.map(c => [c.id, c]));
     buildStartPage();
     newGame();
     nemesisBtn.disabled = false;
     startBtn.disabled = false;
+    resumeBtn.hidden = !readSave();
+    updateUndoBtn();
   } catch (err) {
     console.error(err);
     startError.textContent = 'Errore: carte non trovate';

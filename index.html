@@ -11,7 +11,11 @@
 </style>
 </head>
 <body>
-  <div id="canvas"><div id="resolve-marker" hidden></div></div>
+  <div id="topbar">
+    <button id="undo-btn" aria-label="Annulla l'ultima azione" title="Annulla" disabled>&#8630;</button>
+    <span id="phase-label">Turno dei giocatori</span>
+  </div>
+  <div id="canvas"></div>
   <div id="overlay" hidden></div>
   <div id="start">
     <div class="start-box">
@@ -29,6 +33,7 @@
         <div class="choices" id="choices-battle"></div>
       </div>
       <div id="start-error"></div>
+      <button id="resume-btn" hidden>Riprendi partita</button>
       <button id="start-btn">Inizia</button>
     </div>
   </div>
@@ -48,7 +53,6 @@
         <button id="menu-btn">Menu</button>
       </span>
     </div>
-    <div id="status" hidden></div>
     <button id="nemesis-btn">Turno Nemesi</button>
     <button id="resolve-btn" hidden>Risolta</button>
   </div>

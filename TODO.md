@@ -5,13 +5,7 @@ Legenda: `[x]` fatto, `[ ]` da fare.
 ## Da fare
 
 - [ ] Segnarsi quali boss interagiscono con il mazzo nemesi
-- [ ] Aggiungere vita nemesi e vita città
-- [ ] Cambiare Design:
-  - [ ] modificare "NUOVA", da capire come farlo
-  - [ ] modificare il modo di segnare la carta da risolvere
-  - [ ] modificare design durante la VistaCoda per capire che non è necessario interagire
- 
-- [ ] Creare il comando "undo" con il simbolo apposito in alto a destra del canva
+- [ ] Aggiungere vita nemesi e vita città (servono i valori iniziali)
 
 ### Dubbi aperti
 - [ ] Ci sono carte che guardano/mischiano il mazzo nemesi?
@@ -19,7 +13,18 @@ Legenda: `[x]` fatto, `[ ]` da fare.
 
 ## Fatte
 
-- [x] Durante la VistaRisoluzione si può toccare una carta della fascia in alto per vederla direttamente (come lo slide, senza risolverla)
+- Design:
+  - [x] "NUOVA" sostituita da etichetta "NEW" (sulla carta in coda e su quella grande), glow dorato e carta che entra girandosi
+  - [x] Carta da risolvere segnata con un glow rosso (al posto della lineetta)
+  - [x] VistaCoda: scritta "Turno dei giocatori" in alto
+  - [x] Glow bianco dietro la carta che si sta guardando (al posto della cornice bianca)
+  - [x] Tolte le scritte di vita e token quando guardi una carta
+  - [x] Tolta la scritta "DA RISOLVERE"
+  - [x] Vita e token anche sopra le carte viste in grande
+- [x] Comando "undo" in alto a sinistra: annulla l'ultima azione, più volte, fino all'inizio della partita
+- [x] Durante la VistaRisoluzione si può toccare una carta della fascia in alto per vederla direttamente
+- [x] La partita si salva nel browser del telefono a ogni azione; riaprendo il sito, "Riprendi partita" torna dove eri
+
 - Poteri:
   - [x] Counter dei loro token (immagine del token sopra la carta, una per token rimasto)
   - [x] Durante la VistaCoda, pulsante per toglierli ("Rimuovi" toccando la carta)

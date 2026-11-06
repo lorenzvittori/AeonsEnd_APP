@@ -5,7 +5,7 @@
 }
 
 :root {
-  /* Carattere con grazie, in tono con i titoli delle carte; usato per NUOVA e DA RISOLVERE */
+  /* Carattere con grazie, in tono con i titoli delle carte; usato per NEW e "Turno dei giocatori" */
   --display-font: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", serif;
 }
 
@@ -35,6 +35,10 @@ body {
 }
 
 .card {
+  --glow-view: 0 0 0 transparent;
+  --glow-res: 0 0 0 transparent;
+  --glow-new: 0 0 0 transparent;
+  box-shadow: var(--glow-new), var(--glow-res), var(--glow-view);
   position: relative;
   background-color: #fff;
   background-size: cover;
@@ -89,35 +93,6 @@ body {
   background-image: url("Assets/life-drop.webp");
 }
 
-/* Scritta sopra il pulsante in VistaRisoluzione: "DA RISOLVERE" grande e rossa, poi token o vita.
-   Altezza fissa, così la carta ingrandita non cambia misura da una carta all'altra. */
-#status {
-  flex: 0 0 100%;
-  min-height: 38px;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 10px;
-  color: #fff;
-}
-
-#status .todo-text {
-  font-family: var(--display-font);
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #ff3b30;
-}
-
-#status .info-text {
-  font-size: 17px;
-  font-weight: 700;
-}
-
-#status[hidden] {
-  display: none;
-}
-
 .controls {
   flex-shrink: 0;
   margin-top: auto;
@@ -129,7 +104,8 @@ body {
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
-/* VistaRisoluzione: coda in alto, trasparente, carta guardata opaca con bordo bianco */
+/* VistaRisoluzione: coda in alto e trasparente. Glow dietro le carte (si sommano se una carta ne ha più d'uno):
+   bianco = carta guardata, rosso = carta da risolvere, dorato = carta appena pescata (.is-new, anche in VistaCoda) */
 #canvas.resolving {
   flex: 0 0 20%;
 }
@@ -138,46 +114,91 @@ body {
   opacity: 0.3;
 }
 
-#canvas.resolving .card.viewed {
-  opacity: 1;
+#canvas.resolving .card.to-resolve {
+  opacity: 0.8;
+  --glow-res: 0 0 calc(var(--cw, 60px) * 0.2) calc(var(--cw, 60px) * 0.06) rgba(255, 40, 40, 0.95);
 }
 
-/* Lineetta bianca sotto la carta da risolvere (si sposta solo con "Risolta") */
-#resolve-marker {
+#canvas.resolving .card.viewed {
+  opacity: 1;
+  --glow-view: 0 0 calc(var(--cw, 60px) * 0.12) calc(var(--cw, 60px) * 0.03) rgba(255, 255, 255, 0.95);
+}
+
+.card.is-new {
+  --glow-new: 0 0 calc(var(--cw, 60px) * 0.16) calc(var(--cw, 60px) * 0.04) rgba(255, 196, 60, 0.85);
+}
+
+/* Etichetta NEW sulla carta appena pescata (in coda e ingrandita) */
+.new-tag {
   position: absolute;
-  height: 3px;
-  border-radius: 2px;
-  background: #fff;
+  top: 3%;
+  left: 3%;
+  padding: calc(var(--cw, 60px) * 0.015) calc(var(--cw, 60px) * 0.05);
+  border-radius: calc(var(--cw, 60px) * 0.04);
+  background: linear-gradient(#ffe08a, #e0a020);
+  color: #3b2300;
+  font-family: var(--display-font);
+  font-size: max(8px, calc(var(--cw, 60px) * 0.11));
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+  box-shadow: 0 0 calc(var(--cw, 60px) * 0.05) rgba(0, 0, 0, 0.6);
   pointer-events: none;
 }
 
-#resolve-marker[hidden] {
-  display: none;
+/* La carta pescata entra girandosi, come se si scoprisse dal mazzo */
+@keyframes flip-in {
+  from { transform: perspective(1000px) rotateY(-180deg); }
+  to { transform: perspective(1000px) rotateY(0deg); }
 }
 
-/* Scritta a destra della carta ingrandita (ultima carta della coda) */
-#overlay .card {
+.card.flip-in {
+  backface-visibility: hidden;
+  animation: flip-in 0.7s ease-out;
+}
+
+/* Barra in alto: undo a sinistra, "Turno dei giocatori" al centro (nascosto in VistaRisoluzione) */
+#topbar {
+  flex-shrink: 0;
   position: relative;
+  height: 44px;
+  margin-top: env(safe-area-inset-top, 0px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.new-label {
+#phase-label {
+  color: #fff;
+  font-family: var(--display-font);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+#phase-label.invisible {
+  visibility: hidden;
+}
+
+#undo-btn {
   position: absolute;
-  left: 100%;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  margin-left: 6px;
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  font-family: var(--display-font);
-  font-size: 30px;
-  font-weight: 700;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: 22px;
   line-height: 1;
-  letter-spacing: 2px;
-  color: #ff3b30;
+  cursor: pointer;
 }
 
-#canvas .card.viewed {
-  border: 3px solid #fff;
+#undo-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 /* VistaCartaCoda: toccando una carta della coda la si vede ingrandita; un tocco ovunque torna alla coda */
@@ -310,6 +331,21 @@ body {
   opacity: 0.4;
 }
 
+/* Riprendi la partita salvata nel browser */
+#resume-btn {
+  padding: 14px;
+  font-size: 20px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+#resume-btn[hidden] {
+  display: none;
+}
+
 #start-error {
   min-height: 1.2em;
   color: #ff3b30;
@@ -373,14 +409,7 @@ body {
   color: #aaa;
 }
 
-/* Sotto la carta ingrandita: token o vita, poi le azioni */
-.zoom-info {
-  min-height: 1.4em;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-}
-
+/* Sotto la carta ingrandita: le azioni */
 .zoom-actions {
   display: flex;
   gap: 8px;
