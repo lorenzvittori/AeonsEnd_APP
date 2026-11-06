@@ -161,6 +161,18 @@ body {
   pointer-events: none;
 }
 
+/* Carta scartata: svanisce da opaca a trasparente */
+@keyframes card-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.discard-ghost {
+  z-index: 5;
+  pointer-events: none;
+  animation: card-out 0.8s ease-out forwards;
+}
+
 /* La carta pescata entra girandosi, come se si scoprisse dal mazzo */
 @keyframes flip-in {
   from { transform: perspective(1000px) rotateY(-180deg); }

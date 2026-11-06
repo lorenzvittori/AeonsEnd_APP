@@ -152,11 +152,33 @@ function drawFromDeck() {
   return data;
 }
 
-// Toglie la carta dalla coda e la mette nella pila degli scarti
+// Toglie la carta dalla coda e la mette nella pila degli scarti; al suo posto resta per un attimo una copia che svanisce
 function discardCard(card) {
   discard.push(card.state.data);
+  fadeOutCopy(card);
   card.remove();
   updateInfo();
+}
+
+// Copia della carta, ferma nel punto in cui era, che passa da opaca a trasparente e poi sparisce
+function fadeOutCopy(card) {
+  const rect = card.getBoundingClientRect();
+  if (!rect.width) return;
+  const ghost = card.cloneNode(true);
+  ghost.classList.remove('viewed', 'to-resolve');
+  ghost.classList.add('discard-ghost');
+  Object.assign(ghost.style, {
+    position: 'fixed',
+    left: rect.left + 'px',
+    top: rect.top + 'px',
+    width: rect.width + 'px',
+    height: rect.height + 'px',
+    margin: '0'
+  });
+  document.body.appendChild(ghost);
+  ghost.addEventListener('animationend', () => ghost.remove());
+  // Se l'animazione non parte (per esempio pagina in background), la copia sparisce comunque
+  setTimeout(() => ghost.remove(), 1000);
 }
 
 function updateInfo() {
