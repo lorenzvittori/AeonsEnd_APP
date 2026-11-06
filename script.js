@@ -1,3 +1,18 @@
+// Aeon's End - gestione della coda della nemesi.
+// Sezioni del file, in ordine:
+//   1. Elementi della pagina, costanti e stato
+//   2. Dati e mazzo (carte, nemesis, Nemesis Deck Setup, pesca e scarti)
+//   3. Disegno della coda e delle carte (layout, token e gocce, carte ingrandite)
+//   4. VistaCartaCoda (carta toccata in VistaCoda: danni, Rimuovi) e pila degli scarti
+//   5. Pagina iniziale (giocatori, wave/nemesis, Include Upgraded Basic) e nuova partita / riprendi
+//   6. Stato della partita: fotografia, ripristino, salvataggio nel browser, undo
+//   7. VistaRisoluzione (turno nemesi) e slide
+//   8. Eventi e avvio
+// Non è diviso in più file JS perché i file importati non avrebbero il ?v=N di version.json e il browser
+// potrebbe tenerne in cache versioni vecchie mescolate a quelle nuove.
+
+// --- 1. Elementi della pagina, costanti e stato -------------------------------------------------------------------
+
 const canvas = document.getElementById('canvas');
 const overlay = document.getElementById('overlay');
 const zoom = document.getElementById('zoom');
@@ -43,12 +58,12 @@ const ZOOM_GAP = 12;
 const SAVE_KEY = 'aeonsend-save-v1';
 const UNDO_LIMIT = 300;
 
-// Tutte le carte (cards.json, generato da cards.csv con tools/build-cards.ps1) e la tabella
+// Tutte le carte (cards.json, generato da tools/cards.csv con tools/build-cards.ps1) e la tabella
 // Nemesis Deck Setup (deck-setup.json), lette all'avvio
 let allCards = [];
 let cardsById = new Map();
 let deckSetup = null;
-// Boss con wave, mini espansione e battaglia (nemesis.json, da tools/nemeses.csv)
+// Nemesis con wave, mini espansione e battaglia (nemesis.json, fatto da tools/nemesis.csv e poi modificato a mano)
 let nemeses = [];
 
 // Scelte della pagina iniziale: giocatori, nemesi (da cui dipende la battaglia) e se usare le Upgraded Basic
@@ -76,6 +91,8 @@ let turn = 0;
 
 // Undo: uno stato della partita salvato prima di ogni azione
 let undoStack = [];
+
+// --- 2. Dati e mazzo ------------------------------------------------------------------------------------------------
 
 async function loadJson(path) {
   const res = await fetch(path, { cache: 'no-cache' });
@@ -189,6 +206,8 @@ function updateInfo() {
   turnInfo.textContent = 'Turno ' + turn + ' · Mazzo ' + deck.length;
   discardBtn.textContent = 'Scarti (' + discard.length + ')';
 }
+
+// --- 3. Disegno della coda e delle carte ----------------------------------------------------------------------------
 
 function layout() {
   const cards = queueCards();
@@ -362,6 +381,8 @@ function layoutZoom() {
   sizeBig(big, zoom.clientWidth, zoom.clientHeight - extra);
 }
 
+// --- 4. VistaCartaCoda e pila degli scarti --------------------------------------------------------------------------
+
 // Carta della coda mostrata in VistaCartaCoda e "sessione" di danni: stato della partita e vita all'apertura
 let zoomedCard = null;
 let zoomSession = null;
@@ -417,14 +438,12 @@ function finishZoom() {
   if (card && session && card.state.hp <= 0) fadeOutCopy(big);
   closeZoom();
   if (!card || !session || card.state.hp === session.startHp) return;
-  undoStack.push(session.before);
-  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  pushUndo(session.before);
   if (card.state.hp <= 0) {
     discardCard(card);
     layout();
     centerQueue();
   }
-  updateUndoBtn();
   save();
 }
 
@@ -516,6 +535,8 @@ function centerQueue() {
   canvas.scrollLeft = left;
 }
 
+// --- 5. Pagina iniziale e nuova partita -----------------------------------------------------------------------------
+
 // Nuova partita con le scelte correnti: coda vuota, nessuna carta
 function reset() {
   closeZoom();
@@ -527,7 +548,7 @@ function reset() {
   layout();
 }
 
-// Pagina iniziale: si scelgono giocatori, nemesi e battaglia
+// Pulsanti a scelta singola della pagina iniziale (giocatori)
 function renderChoices(container, values, selected, onPick) {
   container.replaceChildren();
   values.forEach(value => {
@@ -635,7 +656,7 @@ function resumeGame() {
   }
 }
 
-// --- Stato della partita: salvataggio, undo, ripristino -------------------------------------------------------
+// --- 6. Stato della partita: fotografia, ripristino, salvataggio, undo ---------------------------------------------
 
 // Fotografia della partita (solo dati semplici, così si può salvare nel browser)
 function snapshot() {
@@ -717,12 +738,17 @@ function updateUndoBtn() {
   undoBtn.disabled = undoStack.length === 0;
 }
 
+// Aggiunge un passo di undo (lo stato prima di un'azione), tenendone al massimo UNDO_LIMIT
+function pushUndo(state) {
+  undoStack.push(state);
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  updateUndoBtn();
+}
+
 // Ogni azione che cambia la partita: prima si salva lo stato per l'undo, poi si fa l'azione, poi si salva la partita
 function act(action) {
-  undoStack.push(snapshot());
-  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  pushUndo(snapshot());
   action();
-  updateUndoBtn();
   save();
 }
 
@@ -735,7 +761,7 @@ function undo() {
   save();
 }
 
-// --- VistaRisoluzione -------------------------------------------------------------------------------------------
+// --- 7. VistaRisoluzione (turno nemesi) e slide ---------------------------------------------------------------------
 
 // Mostra o nasconde la parte di interfaccia della VistaRisoluzione
 function setResolvingUI(on) {
@@ -767,8 +793,10 @@ function showBig() {
 
   // Il pulsante vale solo per la carta da risolvere, non per una che si sta solo guardando.
   // Dopo la pesca (Ok / Risolto sulla carta nuova) è sempre attivo, qualunque carta si stia guardando.
+  // Mentre sfuma un token tolto si sta già passando alla carta dopo: il pulsante resta disattivato
+  // (altrimenti guardando una carta della fascia si potrebbe risolvere due volte)
   resolveBtn.textContent = actionText(cards[currentIndex], isNewStep, currentIndex === cards.length - 1);
-  resolveBtn.disabled = !isNewStep && viewIndex !== currentIndex;
+  resolveBtn.disabled = pendingAdvance !== null || (!isNewStep && viewIndex !== currentIndex);
 
   const big = makeBig(cards[viewIndex]);
   if (flipPending && viewIndex === newIndex) {
@@ -962,6 +990,8 @@ overlay.addEventListener('pointercancel', () => {
   swipeStartX = null;
 });
 
+// --- 8. Eventi e avvio ----------------------------------------------------------------------------------------------
+
 // Tocco su una carta della coda (solo in VistaCoda) = VistaCartaCoda; un tocco ovunque la chiude
 // In VistaRisoluzione invece il tocco su una carta della fascia la mostra ingrandita (come lo slide, senza risolvere nulla)
 canvas.addEventListener('click', e => {
@@ -991,7 +1021,7 @@ window.addEventListener('resize', () => {
   layoutZoom();
 });
 
-// Avvio: legge cards.json e deck-setup.json, mostra la pagina iniziale (con "Riprendi partita" se ce n'è una salvata)
+// Avvio: legge cards.json, deck-setup.json e nemesis.json, mostra la pagina iniziale (con "Riprendi partita" se ce n'è una salvata)
 async function init() {
   nemesisBtn.disabled = true;
   startBtn.disabled = true;
