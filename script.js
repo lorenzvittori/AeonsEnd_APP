@@ -253,7 +253,9 @@ function pipClasses(state, lost = 0, gained = 0) {
       ...Array(Math.floor(base / DROP_BIG_VALUE)).fill('drop5'),
       ...Array(base % DROP_BIG_VALUE).fill('drop'),
       ...Array(extra).fill('drop gained'),
-      ...Array(Math.max(0, lost)).fill('drop lost')
+      // Vita tolta in grigio, raggruppata come quella rossa: quante più gocce da 5 possibile e il resto da 1
+      ...Array(Math.floor(Math.max(0, lost) / DROP_BIG_VALUE)).fill('drop5 lost'),
+      ...Array(Math.max(0, lost) % DROP_BIG_VALUE).fill('drop lost')
     ];
   }
   return [];
