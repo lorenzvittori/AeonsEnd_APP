@@ -82,7 +82,7 @@ let newIndex = -1;
 let flipPending = false;
 // Passaggio alla carta dopo, in attesa che finisca l'animazione del token tolto
 let pendingAdvance = null;
-const TOKEN_FADE_MS = 800;
+const TOKEN_FADE_MS = 320;
 
 // Mazzo nemesi (si pesca dalla fine), pila degli scarti e numero di turni nemesi giocati
 let deck = [];
@@ -199,7 +199,7 @@ function fadeOutCopy(card) {
   document.body.appendChild(ghost);
   ghost.addEventListener('animationend', () => ghost.remove());
   // Se l'animazione non parte (per esempio pagina in background), la copia sparisce comunque
-  setTimeout(() => ghost.remove(), 1000);
+  setTimeout(() => ghost.remove(), 450);
 }
 
 function updateInfo() {
@@ -319,7 +319,7 @@ function fadeOutToken(card) {
   ghost.className = 'pip fading';
   ghost.addEventListener('animationend', () => ghost.remove());
   // Se l'animazione non parte (per esempio pagina in background), il token sparisce comunque
-  setTimeout(() => ghost.remove(), 900);
+  setTimeout(() => ghost.remove(), 400);
   pips.appendChild(ghost);
 }
 

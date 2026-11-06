@@ -86,7 +86,7 @@ body {
 }
 
 .pip.fading {
-  animation: pip-out 0.8s ease-out forwards;
+  animation: pip-out 0.32s ease-out forwards;
 }
 
 /* Goccia da 5 punti vita: alta quanto la riga; la goccia da 1 è il 30% più piccola (0.182 / 1.3 = 0.14).
@@ -179,7 +179,7 @@ body {
 .discard-ghost {
   z-index: 12;
   pointer-events: none;
-  animation: card-out 0.8s ease-out forwards;
+  animation: card-out 0.32s ease-out forwards;
 }
 
 /* La carta pescata entra girandosi, come se si scoprisse dal mazzo */
