@@ -656,10 +656,16 @@ overlay.addEventListener('pointercancel', () => {
 });
 
 // Tocco su una carta della coda (solo in VistaCoda) = VistaCartaCoda; un tocco ovunque la chiude
+// In VistaRisoluzione invece il tocco su una carta della fascia la mostra ingrandita (come lo slide, senza risolvere nulla)
 canvas.addEventListener('click', e => {
-  if (resolving) return;
   const card = e.target.closest('.card');
-  if (card) openZoom(card);
+  if (!card) return;
+  if (resolving) {
+    viewIndex = Array.from(canvas.querySelectorAll('.card')).indexOf(card);
+    showBig();
+    return;
+  }
+  openZoom(card);
 });
 zoom.addEventListener('click', closeZoom);
 

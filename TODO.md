@@ -6,6 +6,12 @@ Legenda: `[x]` fatto, `[ ]` da fare.
 
 - [ ] Segnarsi quali boss interagiscono con il mazzo nemesi
 - [ ] Aggiungere vita nemesi e vita città
+- [ ] Cambiare Design:
+  - [ ] modificare "NUOVA", da capire come farlo
+  - [ ] modificare il modo di segnare la carta da risolvere
+  - [ ] modificare design durante la VistaCoda per capire che non è necessario interagire
+ 
+- [ ] Creare il comando "undo" con il simbolo apposito in alto a destra del canva
 
 ### Dubbi aperti
 - [ ] Ci sono carte che guardano/mischiano il mazzo nemesi?
@@ -13,6 +19,7 @@ Legenda: `[x]` fatto, `[ ]` da fare.
 
 ## Fatte
 
+- [x] Durante la VistaRisoluzione si può toccare una carta della fascia in alto per vederla direttamente (come lo slide, senza risolverla)
 - Poteri:
   - [x] Counter dei loro token (immagine del token sopra la carta, una per token rimasto)
   - [x] Durante la VistaCoda, pulsante per toglierli ("Rimuovi" toccando la carta)

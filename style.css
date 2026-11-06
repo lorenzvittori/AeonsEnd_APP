@@ -181,7 +181,7 @@ body {
 }
 
 /* VistaCartaCoda: toccando una carta della coda la si vede ingrandita; un tocco ovunque torna alla coda */
-#canvas:not(.resolving) .card {
+#canvas .card {
   cursor: pointer;
 }
 
