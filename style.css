@@ -103,6 +103,11 @@ body {
   background-image: url("Assets/life-drop.webp");
 }
 
+/* Vita tolta nella VistaCartaCoda (solo lì): goccia grigia */
+.drop.lost {
+  background-image: url("Assets/life-drop-lost.webp");
+}
+
 .controls {
   flex-shrink: 0;
   margin-top: auto;
@@ -322,6 +327,96 @@ body {
   flex: 1 1 calc(50% - 8px);
 }
 
+/* Scelta della nemesi: prima la Wave (tendina), poi i boss di quella wave */
+#wave-select {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: #000;
+  color: #fff;
+}
+
+.choices button.boss {
+  position: relative;
+  padding-top: 18px;
+}
+
+.choices button.boss .boss-battle {
+  display: block;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Nome della mini espansione in alto a destra del pulsante del boss (stile etichetta NEW) */
+.choices button.boss .mini-exp {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: linear-gradient(#ffe08a, #e0a020);
+  color: #3b2300;
+  font-family: var(--display-font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Boss senza carte nel progetto o senza battaglia: visibile ma non selezionabile */
+.choices button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Interruttore "Include Upgraded Basic" */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.switch-row input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch {
+  position: relative;
+  width: 52px;
+  height: 30px;
+  border-radius: 15px;
+  background: #555;
+  transition: background 0.2s;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.2s;
+}
+
+.switch-row input:checked + .switch {
+  background: #2e9e4f;
+}
+
+.switch-row input:checked + .switch::after {
+  left: 25px;
+}
+
 .choices button.selected {
   background: #fff;
   color: #000;
@@ -405,7 +500,21 @@ body {
   overflow-y: auto;
 }
 
+/* Negli scarti: etichette sulla prima carta scartata e sull'ultima */
+.discard-tag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .discard-item {
+  position: relative;
   aspect-ratio: 63 / 88;
   border-radius: 5%;
   background-color: #fff;
@@ -433,6 +542,11 @@ body {
   background: #fff;
   color: #000;
   cursor: pointer;
+}
+
+.zoom-actions button.done {
+  background: #2e9e4f;
+  color: #fff;
 }
 
 .zoom-actions button.danger {

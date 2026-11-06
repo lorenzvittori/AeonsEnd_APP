@@ -48,9 +48,11 @@ const UNDO_LIMIT = 300;
 let allCards = [];
 let cardsById = new Map();
 let deckSetup = null;
+// Boss con wave, mini espansione e battaglia (nemeses.json, da tools/nemeses.csv)
+let nemeses = [];
 
-// Scelte della pagina iniziale: giocatori, nemesi e battaglia
-let settings = { players: 2, nemesis: null, battle: 1 };
+// Scelte della pagina iniziale: giocatori, nemesi (da cui dipende la battaglia) e se usare le Upgraded Basic
+let settings = { players: 2, nemesis: null, includeUpgraded: true };
 let startOptions = null;
 
 // Stato della VistaRisoluzione (false = VistaCoda)
@@ -96,19 +98,34 @@ function pickRandom(cards, n) {
   return shuffle(cards).slice(0, n);
 }
 
-// Mazzo per la battaglia scelta (Nemesis Deck Setup): per ogni Tier si estraggono a caso le carte base e
+// La battaglia dipende dal boss scelto (colonna Expedition Battle di nemeses.json)
+function battleOf(nemesisName) {
+  const info = nemeses.find(n => n.name === nemesisName);
+  return info ? info.battle : null;
+}
+
+// Un boss si può scegliere solo se ha una battaglia e le sue carte sono nel progetto
+function isPlayable(info) {
+  return info.battle !== null && allCards.some(c => c.category === 'Specific' && c.nemesis === info.name);
+}
+
+// Mazzo per la battaglia del boss scelto (Nemesis Deck Setup): per ogni Tier si estraggono a caso le carte base e
 // potenziate indicate nella tabella e si aggiungono le carte specifiche del nemico di quel Tier.
+// Senza "Include Upgraded Basic" al posto delle potenziate si prendono altrettante carte base diverse, dello stesso
+// Tier: il numero di carte resta uguale.
 // Ogni Tier è mescolato a parte; si pesca dalla fine, quindi in cima c'è il Tier 1 e in fondo il Tier 3.
 // Restano fuori le carte senza Tier (World Devourer, Rending Claw) e la maledizione dei giocatori.
 function buildDeck() {
-  const battle = deckSetup.battles.find(b => b.battle === settings.battle);
+  const battle = deckSetup.battles.find(b => b.battle === battleOf(settings.nemesis));
   const setup = battle.players[String(settings.players)];
   const result = [];
   [3, 2, 1].forEach(tier => {
     const ofTier = c => c.tier === tier && c.type !== 'Curse';
+    const basicCount = setup.basic[tier] + (settings.includeUpgraded ? 0 : setup.upgradedBasic[tier]);
+    const upgradedCount = settings.includeUpgraded ? setup.upgradedBasic[tier] : 0;
     const group = [
-      ...pickRandom(allCards.filter(c => c.category === 'Basic Nemesis' && ofTier(c)), setup.basic[tier]),
-      ...pickRandom(allCards.filter(c => c.category === 'Upgraded Basic Nemesis' && ofTier(c)), setup.upgradedBasic[tier]),
+      ...pickRandom(allCards.filter(c => c.category === 'Basic Nemesis' && ofTier(c)), basicCount),
+      ...pickRandom(allCards.filter(c => c.category === 'Upgraded Basic Nemesis' && ofTier(c)), upgradedCount),
       ...allCards.filter(c => c.category === 'Specific' && c.nemesis === settings.nemesis && ofTier(c))
     ];
     result.push(...shuffle(group));
@@ -198,18 +215,24 @@ function layout() {
 // Elementi da mostrare sopra la carta, come classi CSS:
 // - potere: un token per ogni token rimasto;
 // - minion: la vita attuale in gocce, quante più possibile da 5 (più grandi) e il resto da 1.
-function pipClasses(state) {
+// - lost: punti vita tolti (solo nella VistaCartaCoda), mostrati come gocce grigie in fondo.
+function pipClasses(state, lost = 0) {
   const { data, tokens, hp } = state;
   if (data.type === 'Power') return Array(Math.max(0, tokens)).fill('pip');
-  if (data.type === 'Minion' && hp !== null && hp !== undefined && hp > 0) {
-    return [...Array(Math.floor(hp / DROP_BIG_VALUE)).fill('drop5'), ...Array(hp % DROP_BIG_VALUE).fill('drop')];
+  if (data.type === 'Minion' && hp !== null && hp !== undefined) {
+    const alive = Math.max(0, hp);
+    return [
+      ...Array(Math.floor(alive / DROP_BIG_VALUE)).fill('drop5'),
+      ...Array(alive % DROP_BIG_VALUE).fill('drop'),
+      ...Array(Math.max(0, lost)).fill('drop lost')
+    ];
   }
   return [];
 }
 
 // Aggiorna quello che sta sopra/sopra la carta (in coda o ingrandita): token o gocce, etichetta NEW e glow dorato
-function decorate(el, state) {
-  const classes = pipClasses(state);
+function decorate(el, state, lost = 0) {
+  const classes = pipClasses(state, lost);
   let pips = el.querySelector('.pips');
   if (classes.length === 0) {
     if (pips) pips.remove();
@@ -308,34 +331,35 @@ function layoutZoom() {
   sizeBig(big, zoom.clientWidth, zoom.clientHeight - extra);
 }
 
-// Carta della coda mostrata in VistaCartaCoda
+// Carta della coda mostrata in VistaCartaCoda e "sessione" di danni: stato della partita e vita all'apertura
 let zoomedCard = null;
+let zoomSession = null;
 
 function openZoom(card) {
   zoomedCard = card;
+  zoomSession = { before: snapshot(), startHp: card.state.hp };
   const { data } = card.state;
   const big = makeBig(card);
 
-  // Azioni in VistaCoda: danno o cura ai minion e uscita dalla coda; i poteri si tolgono quando si paga il costo
+  // Azioni in VistaCoda: danno o cura ai minion (vita persa in grigio, solo qui); i poteri si tolgono pagando il costo.
+  // "Done" chiude la vista e conferma i danni.
   const actions = document.createElement('div');
   actions.className = 'zoom-actions';
   const addAction = (text, handler, extraClass) => {
     const button = document.createElement('button');
     button.textContent = text;
     if (extraClass) button.className = extraClass;
-    button.addEventListener('click', () => act(handler));
+    button.addEventListener('click', handler);
     actions.appendChild(button);
   };
-  if (data.type === 'Minion') {
-    if (card.state.hp !== null) {
-      addAction('−5', () => changeHp(-5));
-      addAction('−1', () => changeHp(-1));
-      addAction('+1', () => changeHp(1));
-    }
-    addAction('Uccidi', removeZoomedCard, 'danger');
+  if (data.type === 'Minion' && card.state.hp !== null) {
+    addAction('−5', () => changeHp(-5));
+    addAction('−1', () => changeHp(-1));
+    addAction('+1', () => changeHp(1));
   } else if (data.type === 'Power') {
-    addAction('Rimuovi', removeZoomedCard, 'danger');
+    addAction('Rimuovi', () => act(removeZoomedCard), 'danger');
   }
+  if (actions.children.length > 0) addAction('Done', finishZoom, 'done');
   // Toccare un pulsante non chiude la VistaCartaCoda
   actions.addEventListener('click', e => e.stopPropagation());
 
@@ -345,10 +369,30 @@ function openZoom(card) {
   layoutZoom();
 }
 
+// Chiude la vista senza conferme (usato anche da undo e nuova partita)
 function closeZoom() {
   zoom.hidden = true;
   zoom.replaceChildren();
   zoomedCard = null;
+  zoomSession = null;
+}
+
+// Uscita dalla VistaCartaCoda (Done o tocco fuori): se la vita del minion è cambiata, l'undo ha un solo passo
+// (lo stato prima dei danni); un minion arrivato a 0 va negli scarti
+function finishZoom() {
+  const card = zoomedCard;
+  const session = zoomSession;
+  closeZoom();
+  if (!card || !session || card.state.hp === session.startHp) return;
+  undoStack.push(session.before);
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  if (card.state.hp <= 0) {
+    discardCard(card);
+    layout();
+    centerQueue();
+  }
+  updateUndoBtn();
+  save();
 }
 
 // Mostra ingrandita una carta qualsiasi (per esempio dagli scarti), senza azioni
@@ -375,6 +419,14 @@ function openDiscard() {
     const item = document.createElement('div');
     item.className = 'discard-item';
     item.style.backgroundImage = `url("${encodeURI(discard[i].image)}")`;
+    // La più recente è la prima in alto: si segnano l'ultima scartata e la prima scartata
+    const label = discard.length === 1 ? 'Unica' : i === discard.length - 1 ? 'Ultima' : i === 0 ? 'Prima' : null;
+    if (label) {
+      const tag = document.createElement('span');
+      tag.className = 'discard-tag';
+      tag.textContent = label;
+      item.appendChild(tag);
+    }
     item.addEventListener('click', () => openImageZoom(discard[i].image));
     discardGrid.appendChild(item);
   }
@@ -386,16 +438,13 @@ function closeDiscard() {
   discardGrid.replaceChildren();
 }
 
-// Cambia la vita del minion mostrato; a 0 o meno esce dalla coda
+// Cambia la vita del minion mostrato, tra 0 e la sua vita massima; la vita tolta si vede in grigio solo qui.
+// A 0 la vista resta aperta: il minion esce dalla coda all'uscita (Done).
 function changeHp(delta) {
   const card = zoomedCard;
-  card.state.hp = Math.max(0, card.state.hp + delta);
-  if (card.state.hp <= 0) {
-    removeZoomedCard();
-    return;
-  }
+  card.state.hp = Math.min(card.state.data.hp, Math.max(0, card.state.hp + delta));
   decorate(card, card.state);
-  decorate(zoom.firstElementChild, card.state);
+  decorate(zoom.firstElementChild, card.state, zoomSession.startHp - card.state.hp);
 }
 
 // Toglie dalla coda la carta mostrata e torna alla VistaCoda
@@ -458,21 +507,59 @@ function renderChoices(container, values, selected, onPick) {
   });
 }
 
+// Boss della wave scelta: nome, battaglia e (in alto a destra) la mini espansione
+function renderBosses(wave) {
+  const container = document.getElementById('choices-nemesis');
+  container.replaceChildren();
+  nemeses.filter(n => n.wave === wave).forEach(info => {
+    const button = document.createElement('button');
+    button.className = 'boss';
+    button.textContent = info.name;
+    const battle = document.createElement('span');
+    battle.className = 'boss-battle';
+    battle.textContent = info.battle ? 'Battaglia ' + info.battle : 'Battaglia non indicata';
+    button.appendChild(battle);
+    if (info.miniExpansion) {
+      const tag = document.createElement('span');
+      tag.className = 'mini-exp';
+      tag.textContent = info.miniExpansion;
+      button.appendChild(tag);
+    }
+    button.disabled = !isPlayable(info);
+    button.classList.toggle('selected', info.name === settings.nemesis);
+    button.addEventListener('click', () => {
+      settings.nemesis = info.name;
+      container.querySelectorAll('button').forEach(b => b.classList.toggle('selected', b === button));
+    });
+    container.appendChild(button);
+  });
+}
+
 function renderStartChoices() {
-  const { players, nemeses, battles } = startOptions;
-  renderChoices(document.getElementById('choices-players'), players, settings.players, v => { settings.players = Number(v); });
-  renderChoices(document.getElementById('choices-nemesis'), nemeses, settings.nemesis, v => { settings.nemesis = v; });
-  renderChoices(document.getElementById('choices-battle'), battles, settings.battle, v => { settings.battle = Number(v); });
+  renderChoices(document.getElementById('choices-players'), startOptions.players, settings.players, v => { settings.players = Number(v); });
+
+  const waveSelect = document.getElementById('wave-select');
+  const current = nemeses.find(n => n.name === settings.nemesis);
+  waveSelect.replaceChildren(...startOptions.waves.map(wave => {
+    const option = document.createElement('option');
+    option.value = wave;
+    option.textContent = wave;
+    return option;
+  }));
+  waveSelect.value = current ? current.wave : startOptions.waves[0];
+  renderBosses(waveSelect.value);
+
+  document.getElementById('upgraded-switch').checked = settings.includeUpgraded !== false;
 }
 
 function buildStartPage() {
-  startOptions = {
-    players: Object.keys(deckSetup.battles[0].players).map(Number),
-    nemeses: [...new Set(allCards.filter(c => c.nemesis).map(c => c.nemesis))],
-    battles: deckSetup.battles.map(b => b.battle)
-  };
-  settings = { players: startOptions.players[0], nemesis: startOptions.nemeses[0], battle: startOptions.battles[0] };
+  const waves = [...new Set([...nemeses].sort((a, b) => a.waveOrder - b.waveOrder).map(n => n.wave))];
+  startOptions = { players: Object.keys(deckSetup.battles[0].players).map(Number), waves };
+  const firstPlayable = nemeses.find(isPlayable);
+  settings = { players: startOptions.players[0], nemesis: firstPlayable ? firstPlayable.name : null, includeUpgraded: true };
   renderStartChoices();
+  document.getElementById('wave-select').addEventListener('change', e => renderBosses(e.target.value));
+  document.getElementById('upgraded-switch').addEventListener('change', e => { settings.includeUpgraded = e.target.checked; });
 }
 
 function openStart() {
@@ -482,6 +569,11 @@ function openStart() {
 
 // Inizia: nuova partita con le scelte fatte (la partita salvata viene sostituita)
 function startGame() {
+  if (!battleOf(settings.nemesis)) {
+    startError.textContent = 'Scegli un boss';
+    return;
+  }
+  startError.textContent = '';
   startLayer.hidden = true;
   undoStack = [];
   reset();
@@ -796,7 +888,7 @@ canvas.addEventListener('click', e => {
   }
   openZoom(card);
 });
-zoom.addEventListener('click', closeZoom);
+zoom.addEventListener('click', finishZoom);
 
 discardBtn.addEventListener('click', openDiscard);
 discardClose.addEventListener('click', closeDiscard);
@@ -818,7 +910,7 @@ async function init() {
   nemesisBtn.disabled = true;
   startBtn.disabled = true;
   try {
-    [allCards, deckSetup] = await Promise.all([loadJson('cards.json'), loadJson('deck-setup.json')]);
+    [allCards, deckSetup, nemeses] = await Promise.all([loadJson('cards.json'), loadJson('deck-setup.json'), loadJson('nemeses.json')]);
     if (allCards.length === 0) throw new Error('Nessuna carta trovata in cards.json');
     cardsById = new Map(allCards.map(c => [c.id, c]));
     buildStartPage();
