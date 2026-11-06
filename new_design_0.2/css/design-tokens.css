@@ -1,0 +1,44 @@
+/* Aeon's End Nemesis Companion - Design tokens v1.0 (dal kit di design, §2 di REPORT_IMPLEMENTAZIONE.md).
+   Misure in CSS px. I font arrivano da Google Fonts (serve la rete); senza rete si usano i fallback di sistema.
+   Va caricato PRIMA di components.css e style.css. */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  color-scheme: dark;
+  --ae-bg: #101116;
+  --ae-surface: #1B1D24;
+  --ae-surface-raised: #252831;
+  --ae-border: #3A3D48;
+  --ae-text: #F4F1E9;
+  --ae-text-muted: #BDC1CD;
+  --ae-text-quiet: #9297A4;
+  --ae-gold: #DFAE59;
+  --ae-danger: #D95E5C;
+  --ae-heal: #59C98C;
+  --ae-focus: #FFCE73;
+  --ae-on-primary: #14151B;
+  --ae-scrim: rgba(4, 5, 8, .82);
+  --ae-font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ae-font-display: 'Cinzel', Georgia, serif;
+  --ae-s1: 4px; --ae-s2: 8px; --ae-s3: 12px; --ae-s4: 16px;
+  --ae-s6: 24px; --ae-s8: 32px; --ae-s10: 40px; --ae-s12: 48px;
+  --ae-radius-sm: 8px; --ae-radius-md: 12px; --ae-radius-lg: 16px;
+  --ae-duration-press: 100ms; --ae-duration-value: 150ms;
+  --ae-duration-dialog: 180ms; --ae-duration-focus: 220ms;
+  --ae-duration-token: 220ms; --ae-duration-discard: 240ms;
+  --ae-duration-phase: 280ms; --ae-duration-draw: 350ms;
+  --ae-ease-standard: cubic-bezier(.4, 0, .2, 1);
+  --ae-ease-decelerate: cubic-bezier(.2, .7, .2, 1);
+  --ae-safe-top: env(safe-area-inset-top, 0px);
+  --ae-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Riduzione movimento: niente slide/flip, solo dissolvenze brevi (massimo 100ms) */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ae-duration-press: 0ms; --ae-duration-value: 0ms;
+    --ae-duration-dialog: 80ms; --ae-duration-focus: 0ms;
+    --ae-duration-token: 0ms; --ae-duration-discard: 80ms;
+    --ae-duration-phase: 0ms; --ae-duration-draw: 100ms;
+  }
+}

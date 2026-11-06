@@ -1,0 +1,248 @@
+/* Componenti riutilizzabili del nuovo design (dal kit: components.css, adattati al DOM dell'app).
+   Usano i token di design-tokens.css. Le misure seguono REPORT_IMPLEMENTAZIONE.md (§2, §3, §5-§9). */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--ae-bg); }
+body { margin: 0; font: 400 16px/1.5 var(--ae-font-ui); background: var(--ae-bg); color: var(--ae-text); }
+h1, h2, h3, p { margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid var(--ae-focus); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* --- Icone: SVG del kit usati come maschera, quindi prendono il colore del testo --- */
+.ae-icon {
+  display: inline-block; width: 18px; height: 18px; flex: 0 0 auto;
+  background-color: currentColor;
+  -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-size: contain; mask-size: contain;
+}
+.ae-icon--heart { -webkit-mask-image: url('../Assets/ui/icons/heart.svg'); mask-image: url('../Assets/ui/icons/heart.svg'); }
+.ae-icon--hourglass { -webkit-mask-image: url('../Assets/ui/icons/hourglass.svg'); mask-image: url('../Assets/ui/icons/hourglass.svg'); }
+.ae-icon--undo { -webkit-mask-image: url('../Assets/ui/icons/undo.svg'); mask-image: url('../Assets/ui/icons/undo.svg'); width: 20px; height: 20px; }
+.ae-icon--eye { -webkit-mask-image: url('../Assets/ui/icons/eye.svg'); mask-image: url('../Assets/ui/icons/eye.svg'); }
+.ae-icon--close { -webkit-mask-image: url('../Assets/ui/icons/close.svg'); mask-image: url('../Assets/ui/icons/close.svg'); width: 20px; height: 20px; }
+.ae-icon--discard { -webkit-mask-image: url('../Assets/ui/icons/discard.svg'); mask-image: url('../Assets/ui/icons/discard.svg'); }
+.ae-icon--check { -webkit-mask-image: url('../Assets/ui/icons/check.svg'); mask-image: url('../Assets/ui/icons/check.svg'); }
+.ae-icon--arrow { -webkit-mask-image: url('../Assets/ui/icons/arrow-right.svg'); mask-image: url('../Assets/ui/icons/arrow-right.svg'); }
+
+/* --- Pulsanti: primary avorio, secondary scuro, destructive contorno rosso, testuale discreto --- */
+.ae-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; min-width: 160px; padding: 12px 18px;
+  border-radius: var(--ae-radius-md); border: 1px solid transparent;
+  font: 600 16px/20px var(--ae-font-ui); text-align: center;
+  transition: transform var(--ae-duration-press) ease-out, background-color var(--ae-duration-value) ease-out, filter var(--ae-duration-value) ease-out;
+}
+.ae-button:active:not(:disabled) { transform: scale(.985); }
+.ae-button:hover:not(:disabled) { filter: brightness(1.04); }
+.ae-button:disabled { opacity: .5; }
+.ae-button[aria-disabled='true'] { cursor: progress; }
+.ae-button--primary { background: var(--ae-text); color: var(--ae-on-primary); font-weight: 700; }
+.ae-button--secondary { background: var(--ae-surface-raised); color: var(--ae-text); border-color: var(--ae-border); font-size: 15px; }
+.ae-button--danger { background: transparent; color: var(--ae-danger); border-color: var(--ae-danger); }
+.ae-button--full { width: 100%; }
+
+.ae-icon-button {
+  flex: 0 0 44px; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  background: transparent; color: var(--ae-text); border: 1px solid transparent; border-radius: var(--ae-radius-md);
+}
+.ae-icon-button:hover:not(:disabled) { background: var(--ae-surface-raised); }
+.ae-icon-button:disabled { color: var(--ae-text-quiet); opacity: .55; }
+
+.ae-text-button {
+  min-height: 44px; min-width: 44px; padding: 0 10px;
+  color: var(--ae-text-muted); background: transparent; border: 1px solid transparent; border-radius: var(--ae-radius-sm);
+  font: 600 14px/20px var(--ae-font-ui); font-variant-numeric: tabular-nums;
+}
+.ae-text-button:hover { background: var(--ae-surface-raised); color: var(--ae-text); }
+
+/* --- Testata e dock --- */
+.ae-header {
+  position: relative; z-index: 10;
+  min-height: calc(56px + var(--ae-safe-top)); padding: var(--ae-safe-top) 12px 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: var(--ae-surface); border-bottom: 1px solid var(--ae-border);
+}
+.ae-phase { flex: 1; font: 700 14px/20px var(--ae-font-ui); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+.ae-header-spacer { width: 44px; height: 44px; flex: 0 0 44px; }
+
+.ae-dock {
+  position: relative; z-index: 10; flex: 0 0 auto;
+  padding: 8px 16px calc(12px + var(--ae-safe-bottom));
+  border-top: 1px solid var(--ae-border); background: var(--ae-surface);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.ae-dock-row { display: flex; min-height: 40px; align-items: center; justify-content: space-between; gap: 8px; }
+.ae-meta { color: var(--ae-text-muted); font: 500 14px/20px var(--ae-font-ui); font-variant-numeric: tabular-nums; }
+.ae-dock-links { display: flex; align-items: center; gap: 8px; }
+.ae-hint { text-align: center; font: 500 13px/18px var(--ae-font-ui); color: var(--ae-text-muted); }
+
+/* --- Badge di stato: fuori dalla scansione, sopra la miniatura --- */
+.ae-status-badge {
+  height: 26px; min-width: 58px; max-width: 100%;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 4px 8px;
+  border: 1px solid var(--ae-border); border-radius: var(--ae-radius-sm);
+  background: var(--ae-surface-raised); color: var(--ae-text);
+  font: 700 12px/16px var(--ae-font-ui); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.ae-status-badge .ae-icon { width: 14px; height: 14px; }
+.ae-status-badge--danger .ae-icon { color: var(--ae-danger); }
+.ae-status-badge--gold .ae-icon { color: var(--ae-gold); }
+.ae-status-badge--empty { visibility: hidden; }
+.ae-status-badge.is-bumped { animation: ae-bump var(--ae-duration-value) ease-out; }
+@keyframes ae-bump { from { transform: scale(1.12); } to { transform: scale(1); } }
+
+/* --- Immagine della carta (scansione o miniatura) con bordo funzionale --- */
+.ae-card-art {
+  display: block; position: relative; aspect-ratio: 63 / 88; width: 100%;
+  border: 2px solid var(--ae-border); border-radius: 7px; overflow: hidden; background: var(--ae-surface-raised);
+}
+.ae-card-art img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.ae-card-art--placeholder {
+  background: radial-gradient(ellipse at 50% 28%, #49516b 0%, #242630 46%, #101116 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px;
+  color: var(--ae-gold); text-align: center;
+}
+.ae-card-art--placeholder::before {
+  content: ''; position: absolute; inset: 7px; border: 1px solid rgba(223,174,89,.55); border-radius: 4px; pointer-events: none;
+}
+.ae-card-art--placeholder strong { font: 600 15px/1.3 var(--ae-font-display); max-width: 96%; overflow-wrap: anywhere; }
+.ae-card-art--placeholder small { font: 600 12px/1.3 var(--ae-font-ui); letter-spacing: .08em; text-transform: uppercase; }
+.ae-card-art--placeholder em { font: 500 12px/1.3 var(--ae-font-ui); color: var(--ae-text-muted); font-style: normal; }
+
+/* Etichetta NUOVA: oro, fuori dalla scansione, accanto all'angolo in alto a destra */
+.ae-new-tag {
+  position: absolute; top: 33px; right: -2px; z-index: 2;
+  border-radius: 7px; padding: 4px 6px; background: var(--ae-gold); color: #20160B;
+  font: 700 11px/14px var(--ae-font-ui); letter-spacing: .05em; text-transform: uppercase; pointer-events: none;
+}
+
+/* --- Miniatura della coda (pulsante) --- */
+.ae-queue-item {
+  width: 132px; flex: 0 0 132px; scroll-snap-align: center; position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 0; border: 0; border-radius: 9px; color: inherit; background: none; text-align: center;
+}
+.ae-queue-item.is-new .ae-card-art { border-color: var(--ae-gold); }
+.ae-queue-item[aria-current='true'] .ae-card-art { border-color: var(--ae-danger); box-shadow: 0 0 0 1px var(--ae-danger); }
+.ae-queue-item[data-viewed='true'] .ae-card-art { border-color: var(--ae-text); box-shadow: 0 0 0 1px var(--ae-text); }
+/* Vista e da risolvere insieme: bordo avorio e un segno rosso interno */
+.ae-queue-item[aria-current='true'][data-viewed='true'] .ae-card-art::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--ae-danger);
+}
+.ae-queue-meta { display: none; }
+
+/* --- Stato vuoto --- */
+.ae-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; gap: 16px; text-align: center; margin: auto; }
+.ae-empty-icon { width: 56px; height: 56px; object-fit: contain; opacity: .9; }
+.ae-empty strong { font-size: 17px; font-weight: 600; }
+.ae-empty p { color: var(--ae-text-muted); font-size: 14px; }
+
+/* --- Dialoghi --- */
+.ae-modal-backdrop {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+  padding: calc(12px + var(--ae-safe-top)) 12px calc(12px + var(--ae-safe-bottom));
+  background: var(--ae-scrim);
+  animation: ae-fade var(--ae-duration-dialog) var(--ae-ease-decelerate);
+}
+.ae-modal {
+  width: min(560px, 100%); max-height: calc(100dvh - 24px - var(--ae-safe-top) - var(--ae-safe-bottom)); overflow: auto;
+  display: flex; flex-direction: column; gap: 12px;
+  border-radius: var(--ae-radius-lg); border: 1px solid var(--ae-border); background: var(--ae-surface);
+  padding: 16px; box-shadow: 0 12px 36px rgba(0,0,0,.30);
+  animation: ae-dialog-in var(--ae-duration-dialog) var(--ae-ease-decelerate);
+}
+.ae-modal--narrow { width: min(420px, 100%); }
+.ae-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.ae-modal-title { font: 600 18px/24px var(--ae-font-display); }
+.ae-modal-title--ui { font: 600 16px/22px var(--ae-font-ui); }
+.ae-modal-kind { color: var(--ae-text-muted); font: 700 12px/16px var(--ae-font-ui); letter-spacing: .08em; text-transform: uppercase; }
+.ae-modal-text { color: var(--ae-text-muted); font-size: 16px; line-height: 24px; }
+.ae-modal-art {
+  align-self: center; width: auto; aspect-ratio: 63 / 88;
+  height: min(47dvh, 420px, calc(64vw * 88 / 63), calc(300px * 88 / 63));
+}
+.ae-modal-footer { display: flex; gap: 8px; }
+.ae-modal-footer .ae-button { flex: 1 1 0; min-width: 0; }
+@media (max-height: 700px) { .ae-modal-art { height: min(40dvh, 420px, calc(64vw * 88 / 63)); } }
+@keyframes ae-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ae-dialog-in { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+
+/* Pannello punti vita del minion */
+.ae-hp-number { text-align: center; font: 700 24px/30px var(--ae-font-ui); font-variant-numeric: tabular-nums; }
+.ae-hp-delta { min-height: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; font: 600 14px/20px var(--ae-font-ui); color: var(--ae-text-muted); }
+.ae-hp-delta .ae-icon { width: 14px; height: 14px; }
+.ae-hp-delta.is-loss { color: var(--ae-danger); }
+.ae-hp-delta.is-gain { color: var(--ae-heal); }
+.ae-hp-controls { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.ae-hp-controls .ae-button { min-width: 56px; height: 48px; min-height: 48px; padding: 0 12px; font-variant-numeric: tabular-nums; }
+.ae-microtext { text-align: center; font: 500 13px/18px var(--ae-font-ui); color: var(--ae-text-muted); }
+.ae-microtext--danger { color: var(--ae-danger); }
+
+/* Gocce di vita (decorative, solo nel dialogo): rosse = vita, grigie = tolta, con glow verde = aggiunta */
+.ae-drops { display: flex; justify-content: center; align-items: flex-end; gap: 2px; min-height: 22px; flex-wrap: nowrap; overflow: hidden; }
+.ae-drops span { flex: 0 1 auto; min-width: 0; background: center / contain no-repeat; }
+.ae-drops .drop5 { width: 17px; height: 22px; background-image: url('../Assets/life-drop-5.webp'); }
+.ae-drops .drop { width: 13px; height: 17px; background-image: url('../Assets/life-drop.webp'); }
+.ae-drops .drop.gained { filter: drop-shadow(0 0 2px #4dff6a) drop-shadow(0 0 4px #4dff6a); }
+.ae-drops .drop.lost { background-image: url('../Assets/life-drop-lost-1.webp'); }
+.ae-drops .drop5.lost { background-image: url('../Assets/life-drop-lost-5.webp'); }
+
+/* --- Drawer degli scarti --- */
+.ae-drawer-backdrop { position: fixed; inset: 0; z-index: 30; background: var(--ae-scrim); animation: ae-fade var(--ae-duration-focus) var(--ae-ease-standard); }
+.ae-drawer {
+  position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--ae-surface);
+  animation: ae-drawer-in var(--ae-duration-focus) var(--ae-ease-standard);
+}
+.ae-drawer-header {
+  position: sticky; top: 0; z-index: 1; flex: 0 0 auto;
+  min-height: calc(56px + var(--ae-safe-top)); padding: var(--ae-safe-top) 8px 0 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  border-bottom: 1px solid var(--ae-border); background: var(--ae-surface);
+}
+.ae-drawer-title { font: 700 14px/20px var(--ae-font-ui); letter-spacing: .08em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+.ae-drawer-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px 16px calc(16px + var(--ae-safe-bottom)); }
+.ae-discard-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-content: start; }
+.ae-discard-item { display: flex; flex-direction: column; gap: 6px; padding: 0; border: 0; border-radius: 9px; background: none; text-align: center; }
+.ae-discard-label { min-height: 16px; color: var(--ae-text-muted); font: 700 12px/16px var(--ae-font-ui); letter-spacing: .06em; text-transform: uppercase; }
+@keyframes ae-drawer-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 359px) { .ae-discard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) {
+  .ae-drawer { left: auto; width: 420px; border-left: 1px solid var(--ae-border); box-shadow: 0 12px 36px rgba(0,0,0,.30); }
+}
+
+/* --- Toast di conferma --- */
+.ae-toast {
+  position: fixed; left: 50%; bottom: calc(150px + var(--ae-safe-bottom)); z-index: 70;
+  max-width: min(480px, calc(100vw - 32px)); padding: 12px 16px;
+  border: 1px solid var(--ae-border); border-radius: var(--ae-radius-md); background: var(--ae-surface-raised);
+  box-shadow: 0 12px 36px rgba(0,0,0,.30); font: 500 14px/20px var(--ae-font-ui); text-align: center;
+  transform: translateX(-50%); animation: ae-toast-in var(--ae-duration-value) ease-out;
+}
+.ae-toast.is-leaving { animation: ae-toast-out var(--ae-duration-value) ease-out forwards; }
+@keyframes ae-toast-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes ae-toast-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* --- Interruttore (riga intera cliccabile) --- */
+.ae-switch-row { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font: 500 14px/20px var(--ae-font-ui); cursor: pointer; }
+.ae-switch-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.ae-switch { position: relative; flex: 0 0 52px; width: 52px; height: 32px; border-radius: 16px; background: var(--ae-border); transition: background var(--ae-duration-value) ease-out; }
+.ae-switch::after {
+  content: ''; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ae-text); transition: transform var(--ae-duration-value) ease-out;
+}
+.ae-switch-row input:checked + .ae-switch { background: var(--ae-gold); }
+.ae-switch-row input:checked + .ae-switch::after { transform: translateX(20px); background: var(--ae-on-primary); }
+.ae-switch-row input:focus-visible + .ae-switch { outline: 3px solid var(--ae-focus); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}
