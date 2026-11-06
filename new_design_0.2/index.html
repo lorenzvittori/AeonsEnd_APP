@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aeons End App - new design 0.2</title>
+<!-- Fondo nero e pagina nascosta finché style.css non è caricato (evita lampi bianchi) -->
+<style>
+  html { background: #000; }
+  html:not(.ready) body { visibility: hidden; }
+</style>
+</head>
+<body>
+  <div id="topbar">
+    <button id="undo-btn" aria-label="Annulla l'ultima azione" title="Annulla" disabled>&#8630;</button>
+    <span id="phase-label">Turno dei giocatori</span>
+  </div>
+  <div id="canvas"></div>
+  <div id="overlay" hidden></div>
+  <div id="start">
+    <div class="start-box">
+      <h1>Aeon's End</h1>
+      <div class="start-group">
+        <div class="start-label">Giocatori</div>
+        <div class="choices" id="choices-players"></div>
+      </div>
+      <div class="start-group">
+        <div class="start-label">Nemesi</div>
+        <select id="wave-select" aria-label="Wave"></select>
+        <div class="choices wide" id="choices-nemesis"></div>
+      </div>
+      <label class="switch-row">
+        <span>Include Upgraded Basic</span>
+        <input type="checkbox" id="upgraded-switch" checked>
+        <span class="switch" aria-hidden="true"></span>
+      </label>
+      <div id="start-error"></div>
+      <button id="resume-btn" hidden>Riprendi partita</button>
+      <button id="start-btn">Inizia</button>
+    </div>
+  </div>
+  <div id="discard" hidden>
+    <div class="discard-header">
+      <span id="discard-title"></span>
+      <button id="discard-close">Chiudi</button>
+    </div>
+    <div id="discard-grid"></div>
+  </div>
+  <div id="zoom" hidden></div>
+  <div class="controls">
+    <div id="info-row">
+      <span id="turn-info"></span>
+      <span class="info-actions">
+        <button id="discard-btn">Scarti (0)</button>
+        <button id="menu-btn">Menu</button>
+      </span>
+    </div>
+    <button id="nemesis-btn">Turno Nemesi</button>
+    <button id="resolve-btn" hidden>Risolta</button>
+  </div>
+
+  <!--
+    Questo file non va più modificato a ogni cambio di CSS/JS: la versione si aumenta in version.json.
+    version.json viene letto saltando la cache del browser, così CSS e JS nuovi si vedono subito
+    (dopo la pubblicazione di GitHub Pages) anche se questo index.html è ancora in cache.
+  -->
+  <script>
+    (function () {
+      function load(v) {
+        var q = v ? '?v=' + v : '';
+        var css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'style.css' + q;
+        function start() {
+          document.documentElement.classList.add('ready');
+          var js = document.createElement('script');
+          js.src = 'script.js' + q;
+          document.body.appendChild(js);
+        }
+        css.onload = start;
+        css.onerror = start;
+        document.head.appendChild(css);
+      }
+
+      fetch('version.json?t=' + Date.now(), { cache: 'no-store' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { load(d.v); })
+        .catch(function () { load(''); });
+    })();
+  </script>
+</body>
+</html>
