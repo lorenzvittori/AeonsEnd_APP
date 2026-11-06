@@ -48,7 +48,7 @@ const UNDO_LIMIT = 300;
 let allCards = [];
 let cardsById = new Map();
 let deckSetup = null;
-// Boss con wave, mini espansione e battaglia (nemeses.json, da tools/nemeses.csv)
+// Boss con wave, mini espansione e battaglia (nemesis.json, da tools/nemeses.csv)
 let nemeses = [];
 
 // Scelte della pagina iniziale: giocatori, nemesi (da cui dipende la battaglia) e se usare le Upgraded Basic
@@ -98,7 +98,7 @@ function pickRandom(cards, n) {
   return shuffle(cards).slice(0, n);
 }
 
-// La battaglia dipende dal boss scelto (colonna Expedition Battle di nemeses.json)
+// La battaglia dipende dal boss scelto (colonna Expedition Battle di nemesis.json)
 function battleOf(nemesisName) {
   const info = nemeses.find(n => n.name === nemesisName);
   return info ? info.battle : null;
@@ -596,7 +596,7 @@ function openStart() {
 // Inizia: nuova partita con le scelte fatte (la partita salvata viene sostituita)
 function startGame() {
   if (!battleOf(settings.nemesis)) {
-    startError.textContent = 'Scegli una nemesis';
+    startError.textContent = 'Scegli un boss';
     return;
   }
   startError.textContent = '';
@@ -936,7 +936,7 @@ async function init() {
   nemesisBtn.disabled = true;
   startBtn.disabled = true;
   try {
-    [allCards, deckSetup, nemeses] = await Promise.all([loadJson('cards.json'), loadJson('deck-setup.json'), loadJson('nemeses.json')]);
+    [allCards, deckSetup, nemeses] = await Promise.all([loadJson('cards.json'), loadJson('deck-setup.json'), loadJson('nemesis.json')]);
     if (allCards.length === 0) throw new Error('Nessuna carta trovata in cards.json');
     cardsById = new Map(allCards.map(c => [c.id, c]));
     buildStartPage();
