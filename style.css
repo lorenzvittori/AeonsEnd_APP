@@ -49,7 +49,7 @@ body {
 
 /* Sopra la carta in coda: un'immagine di token (Assets/power-token.webp) per ogni token del potere, oppure la vita
    del minion in gocce: quante più possibile da 5 (Assets/life-drop-5.webp) e il resto da 1 (Assets/life-drop.webp).
-   Stanno sempre su una sola riga alta al massimo 0.13 x larghezza carta (script.js: PIPS_ROW_RATIO): se sono tanti
+   Stanno sempre su una sola riga alta al massimo 0.182 x larghezza carta (script.js: PIPS_ROW_RATIO): se sono tanti
    si rimpiccioliscono per entrare nella larghezza della carta. */
 .pips {
   position: absolute;
@@ -72,24 +72,34 @@ body {
   background-size: contain;
 }
 
-/* Token del potere: quadrato, alto quanto la riga (0.13 x larghezza carta) */
+/* Token del potere: quadrato, alto quanto la riga (0.182 x larghezza carta) */
 .pip {
-  width: calc(var(--cw, 60px) * 0.13);
-  height: calc(var(--cw, 60px) * 0.13);
+  width: calc(var(--cw, 60px) * 0.182);
+  height: calc(var(--cw, 60px) * 0.182);
   background-image: url("Assets/power-token.webp");
 }
 
-/* Goccia da 5 punti vita: alta quanto la riga; la goccia da 1 è il 30% più piccola (0.13 / 1.3 = 0.1).
+/* Token tolto con "Togli 1": sparisce sfumando */
+@keyframes pip-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.pip.fading {
+  animation: pip-out 0.8s ease-out forwards;
+}
+
+/* Goccia da 5 punti vita: alta quanto la riga; la goccia da 1 è il 30% più piccola (0.182 / 1.3 = 0.14).
    Larghezze = altezza x rapporto dell'immagine (0.76 la goccia 5, 0.766 la goccia 1). */
 .drop5 {
-  width: calc(var(--cw, 60px) * 0.13 * 0.76);
-  height: calc(var(--cw, 60px) * 0.13);
+  width: calc(var(--cw, 60px) * 0.182 * 0.76);
+  height: calc(var(--cw, 60px) * 0.182);
   background-image: url("Assets/life-drop-5.webp");
 }
 
 .drop {
-  width: calc(var(--cw, 60px) * 0.1 * 0.766);
-  height: calc(var(--cw, 60px) * 0.1);
+  width: calc(var(--cw, 60px) * 0.14 * 0.766);
+  height: calc(var(--cw, 60px) * 0.14);
   background-image: url("Assets/life-drop.webp");
 }
 
@@ -125,14 +135,14 @@ body {
 }
 
 .card.is-new {
-  --glow-new: 0 0 calc(var(--cw, 60px) * 0.16) calc(var(--cw, 60px) * 0.04) rgba(255, 196, 60, 0.85);
+  --glow-new: 0 0 calc(var(--cw, 60px) * 0.1) calc(var(--cw, 60px) * 0.02) rgba(255, 196, 60, 0.85);
 }
 
 /* Etichetta NEW sulla carta appena pescata (in coda e ingrandita) */
 .new-tag {
   position: absolute;
   top: 3%;
-  left: 3%;
+  right: 3%;
   padding: calc(var(--cw, 60px) * 0.015) calc(var(--cw, 60px) * 0.05);
   border-radius: calc(var(--cw, 60px) * 0.04);
   background: linear-gradient(#ffe08a, #e0a020);

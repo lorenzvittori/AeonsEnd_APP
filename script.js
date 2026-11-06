@@ -30,7 +30,7 @@ const SWIPE_MIN_DISTANCE = 50;
 
 // Spazio sopra ogni carta (in coda e ingrandita) per token (potere) e gocce di vita (minion): un'unica fila alta al
 // massimo PIPS_ROW_RATIO x larghezza carta, più PIPS_SPACE_EXTRA px (devono corrispondere a .pips / .pip / .drop in style.css)
-const PIPS_ROW_RATIO = 0.13;
+const PIPS_ROW_RATIO = 0.182;
 const PIPS_SPACE_EXTRA = 6;
 
 // Valore in punti vita della goccia grande (la piccola vale 1)
@@ -236,6 +236,18 @@ function decorate(el, state) {
     tag.remove();
   }
   el.classList.toggle('is-new', !!state.isNew);
+}
+
+// Animazione del token tolto: un token "fantasma" in fondo alla fila che sfuma da opaco a trasparente e poi sparisce
+function fadeOutToken(card) {
+  const pips = card.querySelector('.pips');
+  if (!pips) return;
+  const ghost = document.createElement('span');
+  ghost.className = 'pip fading';
+  ghost.addEventListener('animationend', () => ghost.remove());
+  // Se l'animazione non parte (per esempio pagina in background), il token sparisce comunque
+  setTimeout(() => ghost.remove(), 900);
+  pips.appendChild(ghost);
 }
 
 // Testo del pulsante per la carta da risolvere. Sull'ultima carta della coda si pesca la nuova.
@@ -704,16 +716,23 @@ function resolveCurrent() {
 
   // Carta appena pescata: un attacco si risolve subito ed esce dalla coda, le altre restano.
   // Poi ritorno alla VistaCoda.
+  // Con "Ok" la carta smette di essere nuova: spariscono NEW e glow dorato.
   if (newIndex >= 0) {
-    if (data.type === 'Attack') discardCard(card);
+    if (data.type === 'Attack') {
+      discardCard(card);
+    } else {
+      card.state.isNew = false;
+      decorate(card, card.state);
+    }
     endResolution();
     return;
   }
 
   if (data.type === 'Power' && tokens > 1) {
-    // Potere: si toglie un token e si va avanti
+    // Potere: si toglie un token (che sparisce sfumando nella fascia) e si va avanti
     card.state.tokens--;
     decorate(card, card.state);
+    fadeOutToken(card);
     currentIndex++;
   } else if (data.type === 'Minion') {
     // Minion: resta in coda, si va avanti
