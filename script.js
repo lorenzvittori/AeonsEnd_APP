@@ -65,6 +65,9 @@ let viewIndex = 0;
 let newIndex = -1;
 // La prossima volta che si mostra la carta appena pescata, entra girandosi
 let flipPending = false;
+// Passaggio alla carta dopo, in attesa che finisca l'animazione del token tolto
+let pendingAdvance = null;
+const TOKEN_FADE_MS = 800;
 
 // Mazzo nemesi (si pesca dalla fine), pila degli scarti e numero di turni nemesi giocati
 let deck = [];
@@ -152,20 +155,21 @@ function drawFromDeck() {
   return data;
 }
 
-// Toglie la carta dalla coda e la mette nella pila degli scarti; al suo posto resta per un attimo una copia che svanisce
+// Toglie la carta dalla coda e la mette nella pila degli scarti (nella coda sparisce subito)
 function discardCard(card) {
   discard.push(card.state.data);
-  fadeOutCopy(card);
   card.remove();
   updateInfo();
 }
 
-// Copia della carta, ferma nel punto in cui era, che passa da opaca a trasparente e poi sparisce
+// Dissolvenza della carta scartata, solo sulla carta grande al centro: una copia ferma nel punto in cui era
+// passa da opaca a trasparente e poi sparisce
 function fadeOutCopy(card) {
+  if (!card) return;
   const rect = card.getBoundingClientRect();
   if (!rect.width) return;
   const ghost = card.cloneNode(true);
-  ghost.classList.remove('viewed', 'to-resolve');
+  ghost.classList.remove('viewed', 'to-resolve', 'flip-in');
   ghost.classList.add('discard-ghost');
   Object.assign(ghost.style, {
     position: 'fixed',
@@ -407,6 +411,8 @@ function closeZoom() {
 function finishZoom() {
   const card = zoomedCard;
   const session = zoomSession;
+  const big = zoom.firstElementChild;
+  if (card && session && card.state.hp <= 0) fadeOutCopy(big);
   closeZoom();
   if (!card || !session || card.state.hp === session.startHp) return;
   undoStack.push(session.before);
@@ -476,6 +482,7 @@ function changeHp(delta) {
 // Toglie dalla coda la carta mostrata e torna alla VistaCoda
 function removeZoomedCard() {
   const card = zoomedCard;
+  fadeOutCopy(zoom.firstElementChild);
   closeZoom();
   discardCard(card);
   layout();
@@ -656,6 +663,10 @@ function restore(s) {
   closeZoom();
   closeDiscard();
   flipPending = false;
+  if (pendingAdvance) {
+    clearTimeout(pendingAdvance);
+    pendingAdvance = null;
+  }
   queueCards().forEach(card => card.remove());
   deck = newDeck;
   discard = newDiscard;
@@ -759,11 +770,35 @@ function showBig() {
 
   const big = makeBig(cards[viewIndex]);
   if (flipPending && viewIndex === newIndex) {
-    big.classList.add('flip-in');
+    // La carta pescata si gira solo quando la sua immagine è caricata: prima resta nascosta (niente carta bianca)
     flipPending = false;
+    big.style.visibility = 'hidden';
+    whenImageReady(cards[viewIndex].state.data.image).then(() => {
+      big.style.visibility = '';
+      big.classList.add('flip-in');
+    });
   }
   overlay.replaceChildren(big);
   layoutOverlay();
+}
+
+// Promessa che si risolve quando l'immagine è scaricata e pronta (o se non si carica: la carta compare comunque)
+function whenImageReady(imagePath) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = resolve;
+    img.onerror = resolve;
+    img.src = encodeURI(imagePath);
+    if (img.complete) resolve();
+    // Al massimo si aspettano 5 secondi
+    setTimeout(resolve, 5000);
+  });
+}
+
+// Scarica in anticipo l'immagine della prossima carta del mazzo, così la pesca è immediata
+function preloadNextDraw() {
+  const next = deck[deck.length - 1];
+  if (next) whenImageReady(next.image);
 }
 
 // Passa alla carta da risolvere e la mostra ingrandita
@@ -784,6 +819,7 @@ function startResolution() {
   currentIndex = 0;
   newIndex = -1;
   setResolvingUI(true);
+  preloadNextDraw();
   // La coda si restringe in alto: ricalcola la dimensione delle carte
   layout();
 
@@ -835,8 +871,12 @@ function resolveCurrent() {
   // Carta appena pescata: un attacco si risolve subito ed esce dalla coda, le altre restano.
   // Poi ritorno alla VistaCoda.
   // Con "Ok" la carta smette di essere nuova: spariscono NEW e glow dorato.
+  // La carta grande al centro mostra la carta da risolvere? (solo allora si animano token e scarto lì)
+  const big = viewIndex === currentIndex ? overlay.firstElementChild : null;
+
   if (newIndex >= 0) {
     if (data.type === 'Attack') {
+      fadeOutCopy(big);
       discardCard(card);
     } else {
       card.state.isNew = false;
@@ -847,22 +887,40 @@ function resolveCurrent() {
   }
 
   if (data.type === 'Power' && tokens > 1) {
-    // Potere: si toglie un token (che sparisce sfumando nella fascia) e si va avanti
+    // Potere: si toglie un token, che sparisce sfumando nella fascia e sulla carta grande;
+    // si passa alla carta dopo solo a fine animazione
     card.state.tokens--;
     decorate(card, card.state);
     fadeOutToken(card);
+    if (big) {
+      decorate(big, card.state);
+      fadeOutToken(big);
+    }
     currentIndex++;
-  } else if (data.type === 'Minion') {
+    resolveBtn.disabled = true;
+    pendingAdvance = setTimeout(() => {
+      pendingAdvance = null;
+      advanceAfterResolve();
+      save();
+    }, TOKEN_FADE_MS);
+    return;
+  }
+
+  if (data.type === 'Minion') {
     // Minion: resta in coda, si va avanti
     currentIndex++;
   } else {
     // Potere all'ultimo token o attacco: risolto, va negli scarti (la carta dopo prende il suo posto)
+    fadeOutCopy(big);
     discardCard(card);
   }
+  advanceAfterResolve();
+}
+
+// Dopo aver risolto una carta: si sistema la coda e si passa alla prossima, o si pesca a fine coda
+function advanceAfterResolve() {
   // Con una carta in meno le altre possono ingrandirsi
   layout();
-
-  // Finita la coda: si pesca la nuova carta e la si mostra
   if (currentIndex >= queueCards().length) {
     drawNewCard();
   } else {

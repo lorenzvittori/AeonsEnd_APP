@@ -173,7 +173,7 @@ body {
 }
 
 .discard-ghost {
-  z-index: 5;
+  z-index: 12;
   pointer-events: none;
   animation: card-out 0.8s ease-out forwards;
 }
