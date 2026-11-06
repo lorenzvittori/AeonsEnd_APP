@@ -103,6 +103,11 @@ body {
   background-image: url("Assets/life-drop.webp");
 }
 
+/* Vita aggiunta nella VistaCartaCoda (solo lì): goccia da 1 con un glow verde */
+.drop.gained {
+  filter: drop-shadow(0 0 calc(var(--cw, 60px) * 0.012) #4dff6a) drop-shadow(0 0 calc(var(--cw, 60px) * 0.025) #4dff6a);
+}
+
 /* Vita tolta nella VistaCartaCoda (solo lì): goccia grigia */
 .drop.lost {
   background-image: url("Assets/life-drop-lost.webp");

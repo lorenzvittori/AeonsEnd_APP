@@ -237,15 +237,18 @@ function layout() {
 // Elementi da mostrare sopra la carta, come classi CSS:
 // - potere: un token per ogni token rimasto;
 // - minion: la vita attuale in gocce, quante più possibile da 5 (più grandi) e il resto da 1.
-// - lost: punti vita tolti (solo nella VistaCartaCoda), mostrati come gocce grigie in fondo.
-function pipClasses(state, lost = 0) {
+// Solo nella VistaCartaCoda: lost = punti vita tolti (gocce grigie in fondo), gained = punti vita aggiunti
+// (gocce da 1 con un glow, prima delle grigie); il resto della vita si raggruppa come sempre.
+function pipClasses(state, lost = 0, gained = 0) {
   const { data, tokens, hp } = state;
   if (data.type === 'Power') return Array(Math.max(0, tokens)).fill('pip');
   if (data.type === 'Minion' && hp !== null && hp !== undefined) {
-    const alive = Math.max(0, hp);
+    const extra = Math.max(0, Math.min(gained, hp));
+    const base = Math.max(0, hp) - extra;
     return [
-      ...Array(Math.floor(alive / DROP_BIG_VALUE)).fill('drop5'),
-      ...Array(alive % DROP_BIG_VALUE).fill('drop'),
+      ...Array(Math.floor(base / DROP_BIG_VALUE)).fill('drop5'),
+      ...Array(base % DROP_BIG_VALUE).fill('drop'),
+      ...Array(extra).fill('drop gained'),
       ...Array(Math.max(0, lost)).fill('drop lost')
     ];
   }
@@ -253,8 +256,8 @@ function pipClasses(state, lost = 0) {
 }
 
 // Aggiorna quello che sta sopra/sopra la carta (in coda o ingrandita): token o gocce, etichetta NEW e glow dorato
-function decorate(el, state, lost = 0) {
-  const classes = pipClasses(state, lost);
+function decorate(el, state, lost = 0, gained = 0) {
+  const classes = pipClasses(state, lost, gained);
   let pips = el.querySelector('.pips');
   if (classes.length === 0) {
     if (pips) pips.remove();
@@ -466,7 +469,8 @@ function changeHp(delta) {
   const card = zoomedCard;
   card.state.hp = Math.min(card.state.data.hp, Math.max(0, card.state.hp + delta));
   decorate(card, card.state);
-  decorate(zoom.firstElementChild, card.state, zoomSession.startHp - card.state.hp);
+  const change = card.state.hp - zoomSession.startHp;
+  decorate(zoom.firstElementChild, card.state, Math.max(0, -change), Math.max(0, change));
 }
 
 // Toglie dalla coda la carta mostrata e torna alla VistaCoda
