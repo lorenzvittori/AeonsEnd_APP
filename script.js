@@ -230,7 +230,7 @@ function decorate(el, state) {
   if (state.isNew && !tag) {
     tag = document.createElement('span');
     tag.className = 'new-tag';
-    tag.setAttribute('aria-label', 'NEW');
+    tag.textContent = 'NEW';
     el.appendChild(tag);
   } else if (!state.isNew && tag) {
     tag.remove();

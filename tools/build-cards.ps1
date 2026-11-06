@@ -1,5 +1,5 @@
-# Genera cards.json a partire da cards.csv e dalle immagini nelle cartelle di Data/.
-# Da eseguire (PowerShell) ogni volta che si modifica cards.csv o si spostano/aggiungono immagini:
+# Genera cards.json a partire da tools/cards.csv e dalle immagini nelle cartelle di Data/.
+# Da eseguire (PowerShell) ogni volta che si modifica tools/cards.csv o si spostano/aggiungono immagini:
 #   powershell -ExecutionPolicy Bypass -File tools\build-cards.ps1
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path -Parent $PSScriptRoot)
@@ -35,7 +35,7 @@ Get-ChildItem -LiteralPath $dataRoot -Recurse -File |
     $images[$key] = $_
   }
 
-$rows = Import-Csv -LiteralPath 'cards.csv' -Encoding UTF8
+$rows = Import-Csv -LiteralPath 'tools\cards.csv' -Encoding UTF8
 $used = @{}
 $cards = foreach ($r in $rows) {
   $key = Get-Key $r.Name
